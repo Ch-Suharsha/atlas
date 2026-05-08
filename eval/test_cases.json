@@ -1,0 +1,678 @@
+[
+  {
+    "id": "TC001",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "What is the current status of order ORD-88210?",
+    "context_hint": "Order ORD-88210 is Shipped via UPS, tracking 1Z999AA10123456784, ETA 2026-05-08",
+    "key_facts": [
+      "Shipped",
+      "UPS",
+      "1Z999AA10123456784",
+      "2026-05-08"
+    ],
+    "ideal_answer": "Order ORD-88210 is currently Shipped via UPS. The tracking number is 1Z999AA10123456784 and the estimated delivery date is 2026-05-08.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC002",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "What is the tracking number for ORD-88210?",
+    "context_hint": "Tracking number is 1Z999AA10123456784 via UPS",
+    "key_facts": [
+      "1Z999AA10123456784",
+      "UPS"
+    ],
+    "ideal_answer": "The tracking number for order ORD-88210 is 1Z999AA10123456784 shipped via UPS.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC003",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "When will my order ORD-88210 be delivered?",
+    "context_hint": "ETA is 2026-05-08",
+    "key_facts": [
+      "2026-05-08"
+    ],
+    "ideal_answer": "Your order ORD-88210 is estimated to be delivered on 2026-05-08.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC004",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "What items did I order in ORD-88210?",
+    "context_hint": "Items: Blue Wireless Headphones x1",
+    "key_facts": [
+      "Blue Wireless Headphones",
+      "headphone"
+    ],
+    "ideal_answer": "Order ORD-88210 contains Blue Wireless Headphones x1.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC005",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "What is the total for order ORD-88210?",
+    "context_hint": "Order total is available from lookup",
+    "key_facts": [
+      "order",
+      "total",
+      "ORD-88210"
+    ],
+    "ideal_answer": "The total for order ORD-88210 can be found in your order confirmation. I can look it up for you.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC006",
+    "category": "order_lookup",
+    "requires_rag": false,
+    "question": "Where is my package? It has not arrived yet.",
+    "context_hint": "No order ID given \u2014 should ask for order ID or email",
+    "key_facts": [
+      "email",
+      "order"
+    ],
+    "ideal_answer": "I'd be happy to help track your package. Could you share your email address or order number so I can look this up for you?"
+  },
+  {
+    "id": "TC007",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "Has order ORD-88210 shipped yet?",
+    "context_hint": "Status is Shipped",
+    "key_facts": [
+      "shipped",
+      "Shipped"
+    ],
+    "ideal_answer": "Yes, order ORD-88210 has shipped. It is currently in transit via UPS with tracking number 1Z999AA10123456784.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC008",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "Which carrier is delivering my order ORD-88210?",
+    "context_hint": "Carrier is UPS",
+    "key_facts": [
+      "UPS"
+    ],
+    "ideal_answer": "Your order ORD-88210 is being delivered by UPS.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC009",
+    "category": "order_lookup",
+    "requires_rag": false,
+    "question": "I can't find my order anywhere. What should I do?",
+    "context_hint": "No order ID \u2014 should guide the user",
+    "key_facts": [
+      "order number",
+      "email",
+      "help"
+    ],
+    "ideal_answer": "I'm sorry to hear that. Could you please share your order number or the email address on your account? I'll look into this for you right away."
+  },
+  {
+    "id": "TC010",
+    "category": "order_lookup",
+    "requires_rag": true,
+    "question": "My order ORD-88210 shows as shipped but I haven't received it.",
+    "context_hint": "Order is shipped, tracking available",
+    "key_facts": [
+      "tracking",
+      "UPS",
+      "1Z999AA10123456784"
+    ],
+    "ideal_answer": "I can see order ORD-88210 has been shipped via UPS with tracking number 1Z999AA10123456784. You can use this tracking number on the UPS website to see the latest delivery updates.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC011",
+    "category": "refund",
+    "requires_rag": true,
+    "question": "I received a damaged item in order ORD-88210 and I want a refund.",
+    "context_hint": "Refund should be processed for ORD-88210",
+    "key_facts": [
+      "refund",
+      "damaged",
+      "ORD-88210"
+    ],
+    "ideal_answer": "I'm sorry to hear your item arrived damaged. I've initiated a refund for order ORD-88210. You should receive a confirmation shortly.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC012",
+    "category": "refund",
+    "requires_rag": true,
+    "question": "The product I got in ORD-88210 is not as described. I want my money back.",
+    "context_hint": "Refund request for ORD-88210",
+    "key_facts": [
+      "refund",
+      "money",
+      "ORD-88210"
+    ],
+    "ideal_answer": "I understand your frustration. If the product doesn't match its description, you're eligible for a refund. I'll process that for order ORD-88210 now.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC013",
+    "category": "refund",
+    "requires_rag": false,
+    "question": "How do I get a refund?",
+    "context_hint": "General refund process question \u2014 policy search expected",
+    "key_facts": [
+      "refund",
+      "30 days",
+      "return",
+      "policy"
+    ],
+    "ideal_answer": "You can request a refund within 30 days of delivery. Please share your order number and reason, and I'll process it for you."
+  },
+  {
+    "id": "TC014",
+    "category": "refund",
+    "requires_rag": false,
+    "question": "What is your refund policy?",
+    "context_hint": "Policy question \u2014 no auth needed",
+    "key_facts": [
+      "30 days",
+      "refund",
+      "policy"
+    ],
+    "ideal_answer": "Our standard refund policy allows returns within 30 days of delivery. Refunds are processed to your original payment method."
+  },
+  {
+    "id": "TC015",
+    "category": "refund",
+    "requires_rag": true,
+    "question": "My order ORD-88210 never arrived. I want a full refund.",
+    "context_hint": "Refund for non-delivery",
+    "key_facts": [
+      "refund",
+      "ORD-88210",
+      "arrived"
+    ],
+    "ideal_answer": "I'm sorry your order hasn't arrived. I've initiated a full refund for order ORD-88210. You'll receive a confirmation once it's processed.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC016",
+    "category": "refund",
+    "requires_rag": false,
+    "question": "How long does a refund take?",
+    "context_hint": "Policy question about refund timeline",
+    "key_facts": [
+      "days",
+      "refund",
+      "business days",
+      "payment"
+    ],
+    "ideal_answer": "Refunds typically take 3-5 business days to appear on your original payment method after they are processed."
+  },
+  {
+    "id": "TC017",
+    "category": "refund",
+    "requires_rag": false,
+    "question": "Can I get a refund on a digital purchase?",
+    "context_hint": "Digital refund policy",
+    "key_facts": [
+      "digital",
+      "refund",
+      "policy"
+    ],
+    "ideal_answer": "Digital purchases generally have different refund policies. Once downloaded or accessed, digital items may not be eligible for a refund. Please check the specific product page for details."
+  },
+  {
+    "id": "TC018",
+    "category": "cancel",
+    "requires_rag": true,
+    "question": "I want to cancel order ORD-88210.",
+    "context_hint": "Order is already shipped \u2014 cancellation will fail",
+    "key_facts": [
+      "cancel",
+      "shipped",
+      "return",
+      "ORD-88210"
+    ],
+    "ideal_answer": "Unfortunately, order ORD-88210 has already shipped and cannot be cancelled. However, you can return it once it's delivered for a full refund.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC019",
+    "category": "cancel",
+    "requires_rag": false,
+    "question": "What is your cancellation policy?",
+    "context_hint": "Policy question \u2014 no auth needed",
+    "key_facts": [
+      "cancel",
+      "shipped",
+      "before",
+      "policy"
+    ],
+    "ideal_answer": "Orders can be cancelled before they ship. Once an order has shipped, it can no longer be cancelled, but you can return it after delivery."
+  },
+  {
+    "id": "TC020",
+    "category": "cancel",
+    "requires_rag": false,
+    "question": "Can I cancel a digital order?",
+    "context_hint": "Digital cancellation policy",
+    "key_facts": [
+      "digital",
+      "cancel",
+      "download",
+      "policy"
+    ],
+    "ideal_answer": "Digital orders can generally be cancelled before the download or access link is used. Once accessed, cancellation may not be possible."
+  },
+  {
+    "id": "TC021",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "What is your return policy?",
+    "context_hint": "Standard return policy \u2014 30 days",
+    "key_facts": [
+      "30 days",
+      "return",
+      "delivery"
+    ],
+    "ideal_answer": "Our standard return window is 30 days from the date of delivery. Items must be in original condition. During the holiday season, the return window may be extended."
+  },
+  {
+    "id": "TC022",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "How long do I have to return an item?",
+    "context_hint": "Return window \u2014 30 days",
+    "key_facts": [
+      "30 days",
+      "return",
+      "delivery"
+    ],
+    "ideal_answer": "You have 30 days from the date of delivery to return most items."
+  },
+  {
+    "id": "TC023",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "What is your holiday return policy?",
+    "context_hint": "Holiday return window extended to January 31",
+    "key_facts": [
+      "holiday",
+      "January",
+      "extended",
+      "return"
+    ],
+    "ideal_answer": "During the holiday season, items purchased between October 1 and December 31 can be returned until January 31 of the following year."
+  },
+  {
+    "id": "TC024",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "Do you offer free shipping?",
+    "context_hint": "Free shipping policy",
+    "key_facts": [
+      "shipping",
+      "free",
+      "standard"
+    ],
+    "ideal_answer": "We offer various shipping options including standard shipping. Free shipping may be available on qualifying orders. Please check the shipping section at checkout for current offers."
+  },
+  {
+    "id": "TC025",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "How long does standard shipping take?",
+    "context_hint": "Shipping time policy",
+    "key_facts": [
+      "shipping",
+      "days",
+      "standard"
+    ],
+    "ideal_answer": "Standard shipping typically takes 3-5 business days. Express and overnight options are also available at checkout."
+  },
+  {
+    "id": "TC026",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "Is my purchase covered by warranty?",
+    "context_hint": "Warranty policy",
+    "key_facts": [
+      "warranty",
+      "manufacturer",
+      "product"
+    ],
+    "ideal_answer": "Most electronics and appliances come with a manufacturer's warranty. The duration and coverage depend on the specific product. Please check your product documentation for warranty details."
+  },
+  {
+    "id": "TC027",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "What happens if my item arrives damaged?",
+    "context_hint": "Damaged item policy",
+    "key_facts": [
+      "damaged",
+      "refund",
+      "replace",
+      "return"
+    ],
+    "ideal_answer": "If your item arrives damaged, you are eligible for a full refund or replacement. Please contact us with your order number and a description of the damage."
+  },
+  {
+    "id": "TC028",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "Can I return an item bought from a third-party seller?",
+    "context_hint": "Third-party seller returns policy",
+    "key_facts": [
+      "seller",
+      "return",
+      "A-to-z",
+      "48 hours"
+    ],
+    "ideal_answer": "Returns for third-party seller items must be sent to the seller. If the seller doesn't respond within 48 hours, you may be eligible for a refund under the A-to-z Guarantee."
+  },
+  {
+    "id": "TC029",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "Do you have a price match policy?",
+    "context_hint": "Price match \u2014 may not be in KB",
+    "key_facts": [
+      "price",
+      "policy",
+      "help"
+    ],
+    "ideal_answer": "I don't have specific information about a price match policy in our system. Please contact our support team directly or visit our help center for the most up-to-date information."
+  },
+  {
+    "id": "TC030",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "What is the return window for electronics?",
+    "context_hint": "Electronics return window",
+    "key_facts": [
+      "30 days",
+      "electronics",
+      "return"
+    ],
+    "ideal_answer": "Most electronics have a 30-day return window from the date of delivery. Always check the specific product page for any exceptions."
+  },
+  {
+    "id": "TC031",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "What does the A-to-z Guarantee cover?",
+    "context_hint": "A-to-z Guarantee policy",
+    "key_facts": [
+      "A-to-z",
+      "guarantee",
+      "seller",
+      "refund"
+    ],
+    "ideal_answer": "The A-to-z Guarantee covers purchases from third-party sellers. If a seller fails to provide a return address or respond within 48 hours, you may be eligible for a refund under this guarantee."
+  },
+  {
+    "id": "TC032",
+    "category": "policy",
+    "requires_rag": false,
+    "question": "How do I return an item?",
+    "context_hint": "Return process",
+    "key_facts": [
+      "return",
+      "order number",
+      "label",
+      "process"
+    ],
+    "ideal_answer": "To return an item, locate your order and select the return option. You'll receive a prepaid return label. Items must be returned within 30 days of delivery."
+  },
+  {
+    "id": "TC033",
+    "category": "product",
+    "requires_rag": true,
+    "question": "Can you recommend a good laptop under $1000?",
+    "context_hint": "Product search for laptop under $1000",
+    "key_facts": [
+      "laptop",
+      "recommend",
+      "$"
+    ],
+    "ideal_answer": "Here are some laptops under $1000 I'd recommend based on our catalog. They offer good performance for everyday use, with solid displays and battery life."
+  },
+  {
+    "id": "TC034",
+    "category": "product",
+    "requires_rag": true,
+    "question": "I am looking for wireless earbuds under $100.",
+    "context_hint": "Product search for earbuds under $100",
+    "key_facts": [
+      "earbuds",
+      "wireless",
+      "$"
+    ],
+    "ideal_answer": "Here are some wireless earbuds available under $100 from our catalog."
+  },
+  {
+    "id": "TC035",
+    "category": "product",
+    "requires_rag": true,
+    "question": "What headphones do you recommend for working from home?",
+    "context_hint": "Product recommendation \u2014 headphones for WFH",
+    "key_facts": [
+      "headphone",
+      "recommend",
+      "noise"
+    ],
+    "ideal_answer": "For working from home, I'd recommend noise-cancelling headphones for focus. Here are some options from our catalog."
+  },
+  {
+    "id": "TC036",
+    "category": "product",
+    "requires_rag": true,
+    "question": "Show me carry-on luggage options under $200.",
+    "context_hint": "Product search for carry-on luggage",
+    "key_facts": [
+      "luggage",
+      "suitcase",
+      "$"
+    ],
+    "ideal_answer": "Here are some carry-on luggage options under $200 from our catalog."
+  },
+  {
+    "id": "TC037",
+    "category": "product",
+    "requires_rag": true,
+    "question": "I need a good webcam for video calls.",
+    "context_hint": "Product search for webcam",
+    "key_facts": [
+      "webcam",
+      "camera",
+      "video"
+    ],
+    "ideal_answer": "Here are some webcam options suitable for video calls from our catalog."
+  },
+  {
+    "id": "TC038",
+    "category": "product",
+    "requires_rag": true,
+    "question": "What is the best mechanical keyboard you have?",
+    "context_hint": "Product search for keyboard",
+    "key_facts": [
+      "keyboard",
+      "mechanical",
+      "recommend"
+    ],
+    "ideal_answer": "Here are some mechanical keyboard options from our catalog based on ratings and reviews."
+  },
+  {
+    "id": "TC039",
+    "category": "product",
+    "requires_rag": true,
+    "question": "Can you suggest a monitor for gaming?",
+    "context_hint": "Product search for gaming monitor",
+    "key_facts": [
+      "monitor",
+      "gaming",
+      "recommend"
+    ],
+    "ideal_answer": "Here are some gaming monitor options from our catalog."
+  },
+  {
+    "id": "TC040",
+    "category": "product",
+    "requires_rag": true,
+    "question": "I need a budget phone under $300.",
+    "context_hint": "Product search for budget phone",
+    "key_facts": [
+      "phone",
+      "$",
+      "budget"
+    ],
+    "ideal_answer": "Here are some phone options under $300 from our catalog."
+  },
+  {
+    "id": "TC041",
+    "category": "product",
+    "requires_rag": true,
+    "question": "What backpacks do you have for travel?",
+    "context_hint": "Product search for travel backpack",
+    "key_facts": [
+      "backpack",
+      "travel",
+      "recommend"
+    ],
+    "ideal_answer": "Here are some travel backpack options from our catalog."
+  },
+  {
+    "id": "TC042",
+    "category": "product",
+    "requires_rag": true,
+    "question": "Do you have any standing desk options?",
+    "context_hint": "Product search for standing desk",
+    "key_facts": [
+      "desk",
+      "standing",
+      "recommend"
+    ],
+    "ideal_answer": "Here are some standing desk options available in our catalog."
+  },
+  {
+    "id": "TC043",
+    "category": "account",
+    "requires_rag": true,
+    "question": "What is my membership tier?",
+    "context_hint": "Account info \u2014 Gold tier for demo customer",
+    "key_facts": [
+      "Gold",
+      "tier",
+      "member"
+    ],
+    "ideal_answer": "You are a Gold member. You've been with us since your account creation date.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC044",
+    "category": "account",
+    "requires_rag": true,
+    "question": "How many orders have I placed in total?",
+    "context_hint": "Account info \u2014 total orders count",
+    "key_facts": [
+      "orders",
+      "total",
+      "account"
+    ],
+    "ideal_answer": "Based on your account, you have placed a total number of orders. I can pull up the exact count for you.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC045",
+    "category": "account",
+    "requires_rag": true,
+    "question": "Can you show me my account details?",
+    "context_hint": "Account info \u2014 name, tier, orders",
+    "key_facts": [
+      "account",
+      "tier",
+      "member",
+      "orders"
+    ],
+    "ideal_answer": "Here are your account details: name, membership tier, member since date, and order count.",
+    "customer_id": "1"
+  },
+  {
+    "id": "TC046",
+    "category": "account",
+    "requires_rag": false,
+    "question": "How do I update my email address?",
+    "context_hint": "Account update \u2014 general guidance",
+    "key_facts": [
+      "account",
+      "email",
+      "update",
+      "settings"
+    ],
+    "ideal_answer": "To update your email address, please go to your account settings and look for the profile or personal information section."
+  },
+  {
+    "id": "TC047",
+    "category": "account",
+    "requires_rag": false,
+    "question": "What are the benefits of the Gold membership tier?",
+    "context_hint": "Membership benefits \u2014 policy/info question",
+    "key_facts": [
+      "Gold",
+      "benefit",
+      "tier",
+      "membership"
+    ],
+    "ideal_answer": "Gold membership typically comes with benefits such as priority support, extended return windows, and exclusive offers. Please check your account page for the full list of benefits."
+  },
+  {
+    "id": "TC048",
+    "category": "escalation",
+    "requires_rag": false,
+    "question": "I want to speak with a human agent.",
+    "context_hint": "Direct escalation request",
+    "key_facts": [
+      "human",
+      "agent",
+      "connect",
+      "team"
+    ],
+    "ideal_answer": "I completely understand. I'm connecting you with a human support agent right now. Please hold on \u2014 a member of our team will be with you shortly."
+  },
+  {
+    "id": "TC049",
+    "category": "escalation",
+    "requires_rag": false,
+    "question": "This is unacceptable. I need to talk to your manager right now.",
+    "context_hint": "Frustrated escalation \u2014 empathetic handoff",
+    "key_facts": [
+      "sorry",
+      "understand",
+      "human",
+      "agent",
+      "team"
+    ],
+    "ideal_answer": "I completely understand your frustration and I sincerely apologize. I'm connecting you with a senior member of our support team right away."
+  },
+  {
+    "id": "TC050",
+    "category": "escalation",
+    "requires_rag": false,
+    "question": "I am very frustrated. Nothing is working and nobody is helping me.",
+    "context_hint": "Frustrated customer \u2014 empathetic response",
+    "key_facts": [
+      "sorry",
+      "understand",
+      "help",
+      "support",
+      "team"
+    ],
+    "ideal_answer": "I'm really sorry you're going through this \u2014 that's completely understandable. I want to make sure you get the right help. Let me connect you with a member of our support team who can assist you personally."
+  }
+]

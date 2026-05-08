@@ -26,7 +26,7 @@ services:
 
   # Easiest email for local dev — no SES/Resend. Start with:
   #   docker compose --profile dev-mail up -d
-  # Then set in .env: SMTP_HOST=mailhog SMTP_PORT=1025 SMTP_USE_TLS=false SMTP_USERNAME="" SMTP_PASSWORD="" SMTP_FROM=anyone@localhost
+  # Then set in .env: SMTP_HOST=mailhog SMTP_PORT=1025 SMTP_USE_TLS=false
   mailhog:
     image: mailhog/mailhog:v1.0.1
     profiles: ["dev-mail"]
@@ -49,7 +49,6 @@ services:
     volumes:
       - hf_cache:/root/.cache/huggingface
       - ./web:/app/web
-      # Catalog CSVs live in ./data (see steps.md). Mounted read-only at /data for ingest + runtime tooling.
       - ./data:/data:ro
     ports:
       - "8000:8000"

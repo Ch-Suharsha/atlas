@@ -1,10 +1,25 @@
 .env
 __pycache__/
 *.pyc
+*.pyo
 .venv/
-# Large dumps — tracked folder, not gigabyte CSV blobs
-data/*.csv
-data/*.CSV
+
+# Large product dataset (359MB) — download separately
+data/amazon_products_final.csv
+
+# Qdrant / Postgres local volumes
 .qdrant/
 .postgres/
+
+# macOS
 .DS_Store
+
+# Model binary weights — too large for GitHub (use HuggingFace instead)
+models/*/adapter_model*.safetensors
+models/*/optimizer.pt
+models/*/rng_state.pth
+models/*/scheduler.pt
+models/*/training_args.bin
+
+# Eval scratch outputs
+eval/smoke_test.md

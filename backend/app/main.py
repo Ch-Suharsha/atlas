@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from . import agent, rag as rag_mod, sentiment, tools
+from . import agent, identification, rag as rag_mod, sentiment, tools
 from .db import engine, get_db
 from .models import Base, Message, Session as ChatSession
 from .rag import ensure_collection, ensure_policy_collection
@@ -107,11 +107,47 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
 
     history = _load_history(db, req.session_id)
 
+    # ── Identification flow ───────────────────────────────────────────────────
+    # Bypass the ID gate for persistently frustrated customers with no order context —
+    # they need empathy, not another "what's your email?" prompt.
+    _skip_id_for_frustration = (
+        cumulative == "frustrated"
+        and not chat_session.customer_id
+        and not any(m.get("role") == "assistant" and
+                    any(w in (m.get("content") or "").lower()
+                        for w in ["confirmed", "verified", "welcome"])
+                    for m in history)
+    )
+    _customer_id_before = chat_session.customer_id
+    id_response = None if _skip_id_for_frustration else identification.handle_identification(
+        message=req.message,
+        chat_session=chat_session,
+        history=history,
+        db=db,
+    )
+    if id_response is not None:
+        customer_just_verified = bool(chat_session.customer_id and not _customer_id_before)
+        db.add(Message(session_id=req.session_id, role="user", content=req.message,
+                       sentiment=sentiment.detect_sentiment(req.message),
+                       intent=sentiment.detect_intent(req.message)))
+        db.add(Message(session_id=req.session_id, role="assistant", content=id_response))
+        db.commit()
+        return ChatResponse(
+            reply=id_response,
+            sentiment=sentiment.detect_sentiment(req.message),
+            intent=sentiment.detect_intent(req.message),
+            escalated=False,
+            customer_verified=customer_just_verified,
+            tools_called=[],
+            rag_sources=[],
+            session_id=req.session_id,
+        )
+
     ctx = tools.ToolContext(
         db=db,
         session_id=req.session_id,
-        customer_id=req.customer_id or chat_session.customer_id,
-        customer_email=req.customer_email,
+        customer_id=chat_session.customer_id,
+        customer_email=None,
     )
 
     try:

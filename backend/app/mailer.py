@@ -44,6 +44,7 @@ def send_email(
     message.set_content(body)
 
     try:
+        log.info("Sending email to %s subject=%r via %s:%s", to_address, subject, settings.smtp_host, settings.smtp_port)
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
             if settings.smtp_use_tls:
                 smtp.starttls()
@@ -51,8 +52,9 @@ def send_email(
                 smtp.login(settings.smtp_username, settings.smtp_password)
             smtp.send_message(message)
         record.status = "sent"
+        log.info("Email sent successfully to %s", to_address)
     except Exception as exc:
-        log.exception("Failed to send email")
+        log.error("Failed to send email to %s: %s", to_address, str(exc), exc_info=True)
         record.status = "failed"
         record.error = str(exc)
     return record

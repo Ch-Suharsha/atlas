@@ -8,12 +8,16 @@ SENTIMENT_RULES: dict[str, list[str]] = {
         "worst", "angry", "furious", "disgusting", "outrageous", "pathetic",
         "useless", "incompetent", "scam", "fraud", "rip off", "wasted",
         "never again", "cancel everything", "fed up", "speak to a manager",
+        "frustrated", "so frustrated", "very frustrated", "extremely frustrated",
+        "annoyed", "so annoyed", "very annoyed", "pissed", "livid",
+        "unbelievable", "absurd", "disgrace", "joke", "embarrassing",
     ],
     "negative": [
         "problem", "issue", "wrong", "broken", "missing", "late", "delayed",
         "damaged", "error", "failed", "not working", "doesn't work", "can't",
         "unable", "refund", "return", "cancel", "complaint", "bad", "poor",
         "unhappy", "waiting", "still haven't", "never received", "disappointed",
+        "upset", "not happy", "not satisfied", "not working", "frustrated",
     ],
     "positive": [
         "thank", "thanks", "great", "excellent", "amazing", "wonderful",
@@ -38,7 +42,14 @@ INTENT_RULES: dict[str, list[str]] = {
     "compliment": ["thank you", "great service", "excellent service"],
     "discount_inquiry": ["discount", "coupon", "promo", "promotion", "deal", "offer", "voucher"],
     "check_stock": ["in stock", "available", "availability", "do you have"],
-    "escalate_to_human": ["speak to human", "talk to agent", "real person", "supervisor", "manager", "human agent"],
+    "escalate_to_human": [
+        "speak to human", "talk to agent", "real person", "supervisor", "manager", "human agent",
+        "speak with someone", "talk to someone", "speak to someone", "talk to a person",
+        "speak to a person", "speak with a person", "speak with a human", "talk to a human",
+        "connect me to", "transfer me", "live agent", "live person", "live support",
+        "want to speak", "want to talk", "like to speak", "like to talk",
+        "need to speak with", "need to talk to",
+    ],
     "shipping_options": ["shipping", "how long", "delivery time", "express", "overnight", "free shipping"],
 }
 

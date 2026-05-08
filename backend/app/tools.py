@@ -98,6 +98,7 @@ def _auto_email(
     subject: str,
     body: str,
     label: str,
+    order_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Send a transactional email and return a tiny status dict.
 
@@ -106,6 +107,13 @@ def _auto_email(
     """
     customer = _resolve_customer(ctx.db, ctx)
     to_address = customer.email if customer else ctx.customer_email
+    # Fallback: look up email via the order's customer when no direct context
+    if not to_address and order_id:
+        order = ctx.db.get(Order, order_id)
+        if order and order.customer_id:
+            c = ctx.db.get(Customer, order.customer_id)
+            if c:
+                to_address = c.email
     if not to_address:
         return {"sent": False, "skipped": "no_customer_email"}
     try:
@@ -411,17 +419,6 @@ def tool_lookup_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
         }
 
     items = order.items or []
-    item_titles = [
-        str(it.get("title") or it.get("name") or "").strip()
-        for it in items
-        if isinstance(it, dict)
-    ]
-    cross_sell = _related_products(
-        query=" ".join(t for t in item_titles if t)[:280],
-        top_k=3,
-        ctx=ctx,
-    )
-
     return {
         "ok": True,
         "found": True,
@@ -432,7 +429,6 @@ def tool_lookup_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
         "eta": order.eta or "TBD",
         "items": items,
         "total": _format_money(order.total_cents, order.currency),
-        "related_products": cross_sell,
     }
 
 
@@ -525,17 +521,6 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
         .filter(Refund.order_id == order.id, Refund.request_key == key)
         .one_or_none()
     )
-    items = order.items or []
-    item_titles = [
-        str(it.get("title") or it.get("name") or "").strip()
-        for it in items
-        if isinstance(it, dict)
-    ]
-    listing_query = " ".join(t for t in item_titles if t)[:280]
-    related = _related_products(query=listing_query, top_k=2, ctx=ctx) if listing_query else []
-    listing_lines = _format_listing_lines(related, cap=2)
-    listing_block = ("\n\nReference listing(s):\n" + "\n".join(listing_lines)) if listing_lines else ""
-
     if existing:
         amount_str = _format_money(existing.amount_cents, existing.currency)
         email = _auto_email(
@@ -543,11 +528,11 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
             subject=f"Refund #{existing.id} status · order {order.id}",
             body=(
                 f"Hi,\n\nWe already have refund #{existing.id} on file for order {order.id}.\n"
-                f"Reason: {reason}\nAmount: {amount_str}\nCurrent status: {existing.status}."
-                f"{listing_block}\n\n"
+                f"Reason: {reason}\nAmount: {amount_str}\nCurrent status: {existing.status}.\n\n"
                 "If something looks wrong, just reply to this thread and a teammate will jump in.\n\n— Atlas Support"
             ),
             label="refund_idempotent",
+            order_id=order.id,
         )
         return {
             "ok": True,
@@ -556,7 +541,6 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
             "status": existing.status,
             "amount": amount_str,
             "message": "Existing refund returned (idempotent). Confirmation email re-sent.",
-            "reference_listings": related,
             "email": email,
         }
 
@@ -577,12 +561,12 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
         subject=f"Refund opened · {amount_str} for order {order.id}",
         body=(
             f"Hi,\n\nWe have opened refund #{refund.id} on order {order.id}.\n"
-            f"Reason on file: {reason}\nAmount: {amount_str}\nStatus: {refund.status}."
-            f"{listing_block}\n\n"
+            f"Reason on file: {reason}\nAmount: {amount_str}\nStatus: {refund.status}.\n\n"
             "Funds typically return in 5 business days after approval. We'll email you again "
             "the moment the status changes.\n\n— Atlas Support"
         ),
         label="refund_opened",
+        order_id=order.id,
     )
 
     return {
@@ -591,7 +575,6 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
         "status": refund.status,
         "amount": amount_str,
         "message": "Refund recorded. Confirmation email sent. Funds typically return in 5 business days once approved.",
-        "reference_listings": related,
         "email": email,
     }
 
@@ -694,33 +677,26 @@ def tool_escalate_to_human(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, 
         priority = "medium"
     customer = _resolve_customer(ctx.db, ctx)
 
-    related = _related_products(query=reason, top_k=2, ctx=ctx) if reason else []
-    listing_lines = _format_listing_lines(related, cap=2)
-    rag_note = ("\n\nLikely catalog matches surfaced for the agent:\n" + "\n".join(listing_lines)) if listing_lines else ""
-    enriched_reason = (reason + rag_note).strip()
-
     ticket_id = "TKT-" + "".join(random.choices(string.digits, k=6))
     ticket = SupportTicket(
         id=ticket_id,
         session_id=ctx.session_id,
         customer_id=customer.id if customer else None,
         priority=priority,
-        reason=enriched_reason,
+        reason=reason,
         status="open",
     )
     ctx.db.add(ticket)
     ctx.db.flush()
     waits = {"low": "15-20 minutes", "medium": "8-12 minutes", "high": "3-5 minutes", "critical": "under 2 minutes"}
 
-    listing_block = ("\n\nReference listing(s) we'll share with the teammate:\n" + "\n".join(listing_lines)) if listing_lines else ""
     email = _auto_email(
         ctx,
         subject=f"Support ticket {ticket_id} opened · priority {priority}",
         body=(
             f"Hi,\n\nA human teammate has been paged for your case.\n"
             f"Ticket: {ticket_id}\nPriority: {priority}\nReason on file: {reason}\n"
-            f"Estimated wait: {waits[priority]}."
-            f"{listing_block}\n\n"
+            f"Estimated wait: {waits[priority]}.\n\n"
             "You'll hear back in this thread shortly. If anything new comes up in the meantime, "
             "just reply and we'll add it to the ticket.\n\n— Atlas Support"
         ),
@@ -765,10 +741,43 @@ def tool_send_customer_email(args: Dict[str, Any], ctx: ToolContext) -> Dict[str
     }
 
 
+def tool_cancel_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
+    order_id = str(args.get("order_id", "")).strip().upper()
+    reason = str(args.get("reason", "") or "").strip() or "Customer request"
+    if not order_id:
+        return {"ok": False, "error": "order_id required"}
+    order = ctx.db.get(Order, order_id)
+    if not order:
+        return {"ok": False, "order_id": order_id, "message": f"Order {order_id} not found."}
+    customer = _resolve_customer(ctx.db, ctx)
+    if customer and order.customer_id != customer.id:
+        return {"ok": False, "order_id": order_id, "error": "Order does not belong to authenticated customer."}
+    if order.status == "Processing":
+        order.status = "Cancelled"
+        ctx.db.flush()
+        _auto_email(
+            ctx,
+            subject=f"Your order {order_id} has been cancelled",
+            body=(
+                f"Hi,\n\nYour order {order_id} has been successfully cancelled.\n"
+                f"Reason: {reason}\n\n"
+                "If you did not request this cancellation or have any questions, "
+                "please contact support immediately.\n\n— Atlas Support"
+            ),
+            label="order_cancelled",
+            order_id=order_id,
+        )
+        return {"ok": True, "order_id": order_id, "message": "Order cancelled successfully. A confirmation email has been sent."}
+    if order.status in {"Shipped", "Out for Delivery", "Delivered"}:
+        return {"ok": False, "order_id": order_id, "message": f"Order {order_id} cannot be cancelled — it has already {order.status.lower()}. You may return it after delivery."}
+    return {"ok": False, "order_id": order_id, "message": f"Order {order_id} is not in a cancellable state (status: {order.status})."}
+
+
 TOOL_DISPATCHER = {
     "lookup_order": tool_lookup_order,
     "search_customer_orders": tool_search_customer_orders,
     "process_refund": tool_process_refund,
+    "cancel_order": tool_cancel_order,
     "get_account_info": tool_get_account_info,
     "search_product_knowledge": tool_search_product_knowledge,
     "search_policy_knowledge": tool_search_policy_knowledge,

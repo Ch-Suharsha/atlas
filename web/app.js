@@ -2,7 +2,6 @@
 
 const API_BASE = "";
 const STORAGE_KEY = "atlas-sessions-v1";
-const IDENTITY_KEY = "atlas-identity-v1";
 const ACTIVE_SESSION_KEY = "atlas-active-session-v1";
 const STALE_EMPTY_MS = 5 * 60 * 1000;
 
@@ -16,7 +15,6 @@ function isCustomerFacing() {
 const state = {
   sessionId: null,
   sessions: {},
-  identity: { customer_id: "", customer_email: "" },
   inflight: false,
 };
 
@@ -25,14 +23,6 @@ function loadState() {
     state.sessions = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
   } catch {
     state.sessions = {};
-  }
-  try {
-    state.identity = Object.assign(
-      state.identity,
-      JSON.parse(localStorage.getItem(IDENTITY_KEY) || "{}")
-    );
-  } catch {
-    /* ignore */
   }
   try {
     const persisted = localStorage.getItem(ACTIVE_SESSION_KEY);
@@ -59,7 +49,6 @@ function pruneEmptySessions() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.sessions));
-  localStorage.setItem(IDENTITY_KEY, JSON.stringify(state.identity));
   if (state.sessionId) {
     localStorage.setItem(ACTIVE_SESSION_KEY, state.sessionId);
   } else {
@@ -142,16 +131,32 @@ function renderThread() {
   }
   renderEmpty(false);
   for (const m of session.messages) {
-    if (m.role === "user") thread.appendChild(buildUserMessage(m.content));
+    if (m.role === "user") thread.appendChild(buildUserMessage(m));
     else thread.appendChild(buildBotMessage(m));
   }
   thread.scrollTop = thread.scrollHeight;
 }
 
-function buildUserMessage(text) {
+function formatTimestamp(ts) {
+  try {
+    return new Date(ts || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch (_) {
+    return "";
+  }
+}
+
+function buildUserMessage(m) {
+  const text = typeof m === "string" ? m : m.content;
+  const ts = typeof m === "object" ? m.timestamp : null;
   const tpl = document.getElementById("tpl-message-user");
   const node = tpl.content.firstElementChild.cloneNode(true);
   node.querySelector(".msg-user__bubble").textContent = text;
+  if (ts) {
+    const time = document.createElement("div");
+    time.className = "msg-time msg-time--user";
+    time.textContent = formatTimestamp(ts);
+    node.appendChild(time);
+  }
   return node;
 }
 
@@ -592,18 +597,28 @@ function buildBotMessage(m) {
   if (isCustomerFacing()) {
     meta.setAttribute("hidden", "");
     meta.innerHTML = "";
-    const resolutions = getCustomerResolutionChips(m);
-    if (resolutions.length) {
+    const chips = [];
+    if (m.customer_verified) {
+      chips.push({ tone: "success", text: "✓ Identity verified" });
+    }
+    chips.push(...getCustomerResolutionChips(m));
+    if (chips.length) {
       const row = document.createElement("div");
       row.className = "customer-resolution-row";
       row.setAttribute("aria-label", "Status");
-      for (const c of resolutions) {
+      for (const c of chips) {
         const el = document.createElement("span");
         el.className = `customer-resolution-chip customer-resolution-chip--${c.tone}`;
         el.textContent = c.text;
         row.appendChild(el);
       }
       bubble.insertBefore(row, copy);
+    }
+    if (m.timestamp) {
+      const time = document.createElement("div");
+      time.className = "msg-time";
+      time.textContent = formatTimestamp(m.timestamp);
+      node.querySelector(".msg-bot__stack").appendChild(time);
     }
     const customerEv = buildCustomerEvidenceSection(m);
     if (customerEv) node.querySelector(".msg-bot__stack").appendChild(customerEv);
@@ -765,24 +780,18 @@ function capitalise(s) {
   return (s || "").charAt(0).toUpperCase() + (s || "").slice(1);
 }
 
-/** Read Identity fields from the DOM so we always send what the user sees (not only after a blur "change"). */
-function syncIdentityFromDom() {
-  const cidInput = $("#customer-id");
-  const cemailInput = $("#customer-email");
-  if (!cidInput || !cemailInput) return;
-  state.identity.customer_id = cidInput.value.trim();
-  state.identity.customer_email = cemailInput.value.trim();
-  saveState();
-}
+const _EMAIL_LIKE_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function sendMessage(text) {
   if (state.inflight || !text.trim()) return;
-  syncIdentityFromDom();
   state.inflight = true;
   const session = ensureSession();
-  session.messages.push({ role: "user", content: text });
+  session.messages.push({ role: "user", content: text, timestamp: Date.now() });
   if (session.messages.length === 1) {
-    session.title = text.length > 40 ? text.slice(0, 40) + "…" : text;
+    const isEmail = _EMAIL_LIKE_RE.test(text.trim());
+    session.title = isEmail
+      ? "Identity verification"
+      : text.length > 40 ? text.slice(0, 40) + "…" : text;
   }
   saveState();
   renderAll();
@@ -794,8 +803,6 @@ async function sendMessage(text) {
       body: JSON.stringify({
         message: text,
         session_id: session.id,
-        customer_id: state.identity.customer_id || null,
-        customer_email: state.identity.customer_email || null,
       }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -807,17 +814,23 @@ async function sendMessage(text) {
       sentiment: data.sentiment,
       intent: data.intent,
       escalated: data.escalated,
+      customer_verified: data.customer_verified || false,
       tools_called: data.tools_called || [],
       rag_sources: data.rag_sources || [],
+      timestamp: Date.now(),
     });
     session.sentiment = data.escalated ? "frustrated" : data.sentiment;
     saveState();
     renderAll();
   } catch (err) {
     hideTyping();
+    const msg = err.message || "";
+    const warmingUp = msg.includes("502") || msg.includes("503");
     const errReply = isCustomerFacing()
-      ? "We couldn't reach support just now. Check your connection and try again."
-      : `Offline or server error · ${err.message}`;
+      ? (warmingUp
+          ? "Our AI assistant is warming up — please try again in a moment."
+          : "We couldn't reach support just now. Please try again in a few seconds.")
+      : `Offline or server error · ${msg}`;
     session.messages.push({
       role: "assistant",
       content: errReply,
@@ -825,6 +838,7 @@ async function sendMessage(text) {
       intent: "error",
       tools_called: [],
       rag_sources: [],
+      timestamp: Date.now(),
     });
     saveState();
     renderAll();
@@ -997,7 +1011,7 @@ function bind() {
       const val = btn.dataset.text;
       input.value = val;
       autoresize();
-      input.focus();
+      composer.requestSubmit();
     })
   );
 
@@ -1018,20 +1032,6 @@ function bind() {
     renderAll();
     input.focus();
   });
-
-  const cidInput = $("#customer-id");
-  const cemailInput = $("#customer-email");
-  cidInput.value = state.identity.customer_id || "";
-  cemailInput.value = state.identity.customer_email || "";
-  function persistIdentity() {
-    state.identity.customer_id = cidInput.value.trim();
-    state.identity.customer_email = cemailInput.value.trim();
-    saveState();
-  }
-  cidInput.addEventListener("input", persistIdentity);
-  cemailInput.addEventListener("input", persistIdentity);
-  cidInput.addEventListener("change", persistIdentity);
-  cemailInput.addEventListener("change", persistIdentity);
 
   const catalogForm = document.getElementById("catalog-form");
   const catalogInput = document.getElementById("catalog-input");

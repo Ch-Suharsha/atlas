@@ -15,11 +15,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    openai_api_key: str = Field(default="")
-    openai_base_url: str = Field(default="https://api.openai.com/v1")
-    llm_model: str = Field(default="gpt-4o-mini")
-    llm_temperature: float = Field(default=0.2)
-    llm_timeout_seconds: float = Field(default=60.0)
+    # HF Inference Endpoint (fine-tuned Phi-4-mini)
+    hf_endpoint_url: str = Field(default="")
+    hf_token: str = Field(default="")
+    llm_timeout_seconds: float = Field(default=120.0)
     agent_max_steps: int = Field(default=6)
 
     embedding_model: str = Field(default="sentence-transformers/all-MiniLM-L6-v2")
@@ -47,7 +46,7 @@ class Settings(BaseSettings):
     smtp_username: str = Field(default="")
     smtp_password: str = Field(default="")
     smtp_from: str = Field(default="support@example.com")
-    smtp_use_tls: bool = Field(default=True)
+    smtp_use_tls: bool = Field(default=False)
 
     escalation_webhook_url: str = Field(default="")
 

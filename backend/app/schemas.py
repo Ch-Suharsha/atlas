@@ -31,6 +31,7 @@ class ChatResponse(BaseModel):
     sentiment: str
     intent: str
     escalated: bool = False
+    customer_verified: bool = False
     tools_called: List[ToolInvocation] = []
     rag_sources: List[RagSource] = []
     session_id: str
