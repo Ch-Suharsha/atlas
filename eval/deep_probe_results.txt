@@ -1,0 +1,2008 @@
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 1. Wrong item received: exchange attempt → refund
+  NOTE    : Customer got the wrong product; wants exchange first, settles on refund
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.1s)  intent=general_inquiry  sent=negative  esc=False  ver=False
+  │  USER : Hi, I have a problem with a recent order
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (3.2s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local and my order is ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Identity confirmed — welcome, **Demo Customer**! You're a **Gold** member.
+           What would you like to know about order **ORD-88210**?  Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  3  (6.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I ordered Blue Wireless Headphones but received a completely different product
+  │  TOOLS: ['search_policy_knowledge', 'search_product_knowledge', 'lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  4  (3.1s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is the current status of ORD-88210?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  5  (9.3s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Can I get an exchange instead of a refund?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge', 'search_product_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 41). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  6  (5.9s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is your exchange policy?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I can see that you would like to know about our exchange policy. Our
+           exchange policy is designed to ensure your satisfaction with your purchase.
+           If you are not satisfied with your purchase, you may be eligible for a
+           refund or exchange. The specific details of our exchange policy may vary
+           depending on the specific product or seller. To get the most accurate and
+           up-to-date information about our exchange policy, I recommend visiting our
+           website or contacting our customer support team directly. They will be able
+           to provide you with the most accurate and detailed information regarding our
+           exchange policy.
+
+  ┌─ Turn  7  (7.8s)  intent=return_item  sent=negative  esc=False  ver=False
+  │  USER : Do I need to pay return shipping for a wrong item?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  8  (6.2s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : How long does the return process take?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  9  (13.3s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : OK forget the exchange, just process a refund for ORD-88210
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 42). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn 10  (7.7s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Has the refund been initiated?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 43). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn 11  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How many days until I see it on my statement?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn 12  (0.0s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : Thanks, I appreciate your help
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ✓  No issues detected
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 2. Loyalty deep-dive: tier benefits, order count, upgrade path
+  NOTE    : Alice explores her account thoroughly — no order actions, just account/product questions
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Hi! I'm curious about my membership benefits
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is alice.johnson@demo.atlas
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Alice Johnson**! I've verified your account (Platinum member).
+           Which order can I help you with, or what else can I do for you today?  I
+           don't have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (4.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What tier am I currently on?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Thank you for your message! I'm here to provide you with the information you
+           need. Based on the data provided, it appears that you are currently on the
+           Platinum tier. This tier offers a range of exclusive benefits and
+           privileges. If you have any further questions or need any assistance, feel
+           free to ask. I'm here to help you make the most of your Platinum membership.
+
+  ┌─ Turn  4  (10.6s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What benefits does my tier include?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           I'm on it! I'm here to provide you with the benefits that come with your
+           Platinum tier membership:  1. **Exclusive Discounts:** As a Platinum member,
+           you have access to exclusive discounts on our products and services. This
+           can help you save money while enjoying the benefits of our platform.  2.
+           **Priority Customer Support:** With your Platinum tier, you have access to
+           priority customer support. This means that your queries and concerns will be
+           addressed by our dedicated support team, ensuring a faster and more
+           efficient resolution.  3. **Enhanced Features:** As a Platinum member, you
+           have access to a range of enhanced features and functionalities. These may
+           include advanced tools, tools, and resources that can help you achieve your
+           goals and make the most of your experience with our platform.  4. **Access
+           to Exclusive Content:** As a Platinum member, you have access to a range of
+           exclusive content that is only available to our Platinum tier members. This
+           can include access to premium content, resources, and resources that can
+           help you achieve your goals and make the most of your experience with our
+           platform.  I hope this information helps! If you have any further questions
+           or need any further assistance, please don't hesitate to ask.
+
+  ┌─ Turn  5  (3.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How many total orders have I placed?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Alice Johnson**: you're a **Platinum** member
+           since 2024-05-17, with 7 open order(s) and 8 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn  6  (5.2s)  intent=product_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Is there a tier above mine? What does it offer?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Thank you for your message! I'm here to provide you with the information you
+           need. As a **Platinum** member, you have access to a range of exclusive
+           benefits and privileges. While I don't have information on a tier above the
+           Platinum tier, I can provide you with details about the benefits and
+           features available to Platinum members. If you have any specific questions
+           or need further assistance, please feel free to ask. I'm here to help!
+
+  ┌─ Turn  7  (4.1s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How do I qualify for the next tier up?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Alice Johnson**: you're a **Platinum** member
+           since 2024-05-17, with 7 open order(s) and 8 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn  8  (9.6s)  intent=shipping_options  sent=neutral  esc=False  ver=False
+  │  USER : Do higher tiers get free expedited shipping?
+  │  TOOLS: ['search_policy_knowledge', 'get_account_info']
+  └─ BOT  :
+           I appreciate your message! It seems like you have some questions about the
+           shipping options and the possibility of expedited shipping for higher tiers.
+           While I don't have specific information about a higher tier above the
+           Platinum tier, I can provide you with some general information about
+           expedited shipping options.  For expedited shipping, we offer various
+           shipping methods to ensure your items reach you as quickly as possible.
+           These methods may include Standard Shipping, Two-Day Shipping, and One-Day
+           Delivery. The specific shipping method available to you may depend on your
+           account type and the shipping address you provide.  To get the most accurate
+           and up-to-date information about expedited shipping options, I recommend
+           reaching out to our customer support team. They will be able to provide you
+           with the most accurate and specific information regarding expedited shipping
+           options for your account.  If you have any other questions or if there's
+           anything else I can assist you with, please feel free to let me know.
+
+  ┌─ Turn  9  (11.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What categories of products do you carry?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your message! I'm here to provide you with the information you
+           need. We offer a wide range of products across various categories to cater
+           to different needs and preferences. Our product categories include:  1.
+           Electronics: We offer a variety of electronic devices such as smartphones,
+           laptops, cameras, and more.  2. Clothing: Our clothing category includes a
+           wide range of options, including men's, women's, and children's clothing.
+           3. Home and Kitchen: Our home and kitchen category includes a variety of
+           items such as cookware, kitchen appliances, and home decor.  4. Beauty and
+           Personal Care: We offer a range of beauty and personal care products,
+           including skincare, makeup, and hair care products.  5. Sports and Outdoor:
+           Our sports and outdoor category includes a range of sports equipment,
+           outdoor gear, and accessories.  6. Toys and Games: We offer a range of toys
+           and games for children, including educational and interactive toys.  These
+           are just a few examples of the categories we offer. If you have any specific
+           questions or if there's anything else I can assist you with, please let me
+           know.
+
+  ┌─ Turn 10  (11.7s)  intent=product_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Can you recommend a good laptop bag for me?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your message! I'm here to help you find a good laptop bag.
+           Based on the verified data from our systems, I recommend considering the
+           following options:  1. Leather Briefcase Laptop Messenger Bag: This is a
+           stylish and practical option for carrying your laptop and other essentials.
+           It is a great choice for both men and women.  2. Laptop Bag for Acer Aspire
+           3 15.6: This laptop bag is specifically designed for the Acer Aspire 3 15.6.
+           It is a great option if you have an Acer Aspire 3 15.6 laptop.  3. Leather
+           Briefcase Laptop Messenger Bag: This is another great option for a stylish
+           and practical laptop bag. It is a great choice for both men and women.  I
+           hope these options help you find the perfect laptop bag for your needs. If
+           you have any further questions or if there's anything else I can assist you
+           with, please let me know.
+
+  ┌─ Turn 11  (6.7s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Does my tier give me any discount on that?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Thank you for your message! I understand that you would like to know if your
+           tier gives you any discount on the item you are interested in. As a Platinum
+           member, you have access to various benefits and discounts. However, the
+           specific discounts and offers available to you may vary depending on the
+           item you are interested in. To get the most accurate and up-to-date
+           information about discounts and offers, I recommend reaching out to our
+           customer support team. They will be able to provide you with the most
+           accurate and specific information regarding any discounts or offers
+           available to you as a Platinum member.
+
+  ✓  No issues detected
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 3. Holiday delivery panic: expedite → cancel attempt → return fallback
+  NOTE    : Customer needs order before a deadline; shipped so can't cancel; learns return option
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Hi I need urgent help, I need my order before Christmas
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (2.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : demo@atlas.local, order ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Identity confirmed — welcome, **Demo Customer**! You're a **Gold** member.
+           What would you like to know about order **ORD-88210**?  Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  3  (2.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : When is it estimated to arrive?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  4  (4.5s)  intent=shipping_options  sent=negative  esc=False  ver=False
+  │  USER : That's too late — can I upgrade to overnight shipping?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  5  (2.7s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What shipping options do you offer normally?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  6  (5.8s)  intent=track_order  sent=neutral  esc=False  ver=False
+  │  USER : Since it already shipped, can I just cancel it?
+  │  TOOLS: ['cancel_order', 'search_policy_knowledge']
+  └─ BOT  :
+           We're unable to cancel this order. Order ORD-88210 cannot be cancelled — it
+           has already shipped. You may return it after delivery. Is there anything
+           else I can help you with?
+
+  ┌─ Turn  7  (6.8s)  intent=track_order  sent=neutral  esc=False  ver=False
+  │  USER : So I can't cancel because it already shipped?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ⚠  Expected 'return' in reply but not found
+
+  ┌─ Turn  8  (7.5s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : If it arrives after my deadline can I return it unopened?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  9  (6.0s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : How long is the return window?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn 10  (5.4s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Does the return window start from the order date or delivery date?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           I understand that you have some concerns about the return window starting
+           from the order date or the delivery date. Let me provide you with the
+           relevant information:  For the order with the number **ORD-88210**, the
+           return window starts from the **2026-05-08**. This means that you have a
+           30-day window from the delivery date to initiate a return.  If you have any
+           further questions or if there's anything else I can assist you with, please
+           feel free to ask.
+
+  ┌─ Turn 11  (5.6s)  intent=return_item  sent=positive  esc=False  ver=False
+  │  USER : OK fine, I'll wait and return it if needed. Thanks
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           I can see that you have some concerns about the return window starting from
+           the order date or the delivery date. Let me provide you with the relevant
+           information:  For the order with the number **ORD-88210**, the return window
+           starts from the **2026-05-08**. This means that you have a 30-day window
+           from the delivery date to initiate a return.  If you have any further
+           questions or if there's anything else I can assist you with, please feel
+           free to ask.
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 4. Billing dispute: suspected double charge → escalation → refund
+  NOTE    : Customer believes they were charged twice; builds frustration; escalates; resolves with refund
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=payment_issue  sent=neutral  esc=False  ver=False
+  │  USER : I think I was charged twice for my order
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Demo Customer**! I've verified your account (Gold member). Which
+           order can I help you with, or what else can I do for you today?  I don't
+           have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (4.6s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I see two charges of $89.99 on my bank statement for order ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  4  (4.5s)  intent=payment_issue  sent=neutral  esc=False  ver=False
+  │  USER : My order total was $89.99 so why was I charged $179.98?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  5  (0.0s)  intent=refund_request  sent=frustrated  esc=True  ver=False
+  │  USER : This is completely unacceptable — I want my money back immediately
+  │  TOOLS: []
+  └─ BOT  :
+           I'm really sorry you're having this experience — that's completely
+           understandable. I want to make sure you get the right help. Let me connect
+           you with a member of our support team who can look into this personally.
+           Please hold on.
+
+  ┌─ Turn  6  (0.0s)  intent=escalate_to_human  sent=neutral  esc=True  ver=False
+  │  USER : I want to speak to a supervisor right now
+  │  TOOLS: []
+  └─ BOT  :
+           I completely understand — I'm connecting you with a human support agent
+           right now. Please hold on. A member of our team will be with you shortly and
+           will have full context of our conversation.
+
+  ┌─ Turn  7  (8.3s)  intent=refund_request  sent=neutral  esc=True  ver=False
+  │  USER : Fine, can you at least process a refund for ORD-88210?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 44). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  8  (5.0s)  intent=refund_request  sent=neutral  esc=True  ver=False
+  │  USER : Has the refund been confirmed?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 45). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  9  (3.0s)  intent=shipping_options  sent=neutral  esc=True  ver=False
+  │  USER : How long will it take to appear on my statement?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn 10  (12.6s)  intent=refund_request  sent=neutral  esc=True  ver=False
+  │  USER : Will the refund go back to the original payment method?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 46). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn 11  (0.0s)  intent=payment_issue  sent=neutral  esc=True  ver=False
+  │  USER : And how do I prevent being double charged in future?
+  │  TOOLS: []
+  └─ BOT  :
+           I'm really sorry you're having this experience — that's completely
+           understandable. I want to make sure you get the right help. Let me connect
+           you with a member of our support team who can look into this personally.
+           Please hold on.
+
+  ┌─ Turn 12  (0.0s)  intent=general_inquiry  sent=positive  esc=True  ver=False
+  │  USER : OK, thanks for sorting that out
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ⚠  Escalated unexpectedly — should stay calm
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 5. Product defect: warranty claim → refund request
+  NOTE    : Headphones stopped working after 3 weeks; warranty inquiry then refund
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=product_defect  sent=neutral  esc=False  ver=False
+  │  USER : Hello, the product I bought stopped working after just 3 weeks
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (3.6s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local and my order is ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Identity confirmed — welcome, **Demo Customer**! You're a **Gold** member.
+           What would you like to know about order **ORD-88210**?  Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  3  (4.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : The Blue Wireless Headphones — one side has no sound at all
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your message about the Blue Wireless Headphones. I understand
+           that one side has no sound at all. This can be a frustrating issue, and I'm
+           here to help you find a solution. To better assist you, could you please
+           provide me with the specific model of the Blue Wireless Headphones you are
+           referring to? This will help me provide you with the most accurate
+           information and guidance.
+
+  ┌─ Turn  4  (4.7s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Is this covered under your warranty?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding the Blue Wireless Headphones. I
+           understand that one side of the headphones has no sound at all. This can be
+           a frustrating issue, and I'm here to help you find a solution. To better
+           assist you, could you please provide me with the specific model of the Blue
+           Wireless Headphones you are referring to? This will help me provide you with
+           the most accurate information and guidance.
+
+  ┌─ Turn  5  (11.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is the warranty period for electronics?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding the warranty period for
+           electronics. Based on the verified data from our systems, most electronics
+           and appliances sold by Amazon come with a standard 1-year manufacturer
+           warranty from the date of purchase. This warranty covers defects in
+           materials and workmanship under normal use conditions. However, it's
+           important to note that the warranty does not cover accidental damage,
+           misuse, or unauthorized repairs performed by third parties.  In addition to
+           the standard warranty, Amazon offers extended protection plans through
+           providers like Asurion. These plans can extend the coverage period up to 3
+           or 4 years and often include protection against accidental drops and spills.
+           To be eligible for the extended protection, you must purchase the protection
+           plan within 30 days of the original product purchase.  It's also important
+           to note that warranty coverage is typically voided if the product's serial
+           number has been removed or altered. Consumable parts such as batteries or
+           light bulbs are usually excluded from the standard warranty terms.
+           Additionally, software and digital content are not covered under hardware
+           warranties and are subject to their own licensing agreements.  I hope this
+           information helps clarify the warranty period for electronics. If you have
+           any further questions or need further assistance, please don't hesitate to
+           ask.
+
+  ┌─ Turn  6  (10.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do I need to send the item back for a warranty claim?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding the need to send the item back for
+           a warranty claim. Based on the verified data from our systems, to initiate a
+           warranty claim, you should first contact the manufacturer directly using the
+           information provided in the product documentation. Amazon can provide proof
+           of purchase if the manufacturer requires it for verification. If the item
+           was sold and fulfilled by Amazon, we may assist with a replacement if the
+           manufacturer is unresponsive within 14 days.  If the item is damaged, you
+           should report it through the 'Your Orders' page within 30 days of delivery.
+           Please take clear photos of the damage to both the product and the shipping
+           packaging for our records. In some cases, we may need to initiate a claim
+           with the shipping carrier for items damaged during transit. You may be
+           contacted by the carrier to verify the damage or to inspect the packaging.
+           Your refund or replacement will not be delayed by this process.  I hope this
+           information helps. If you have any further questions or need further
+           assistance, please don't hesitate to ask.
+
+  ┌─ Turn  7  (9.4s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Who covers the return shipping cost for a defective item?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding the return shipping cost for a
+           defective item. Based on the verified data from our systems, the return
+           shipping cost for a defective item is typically covered by the manufacturer
+           or the shipping carrier. In most cases, the shipping cost for the return of
+           a defective item is the responsibility of the shipping carrier. This ensures
+           that the defective item is returned to the manufacturer or the appropriate
+           party for further evaluation and resolution.  It's important to note that
+           the specific shipping carrier and their policies may vary depending on the
+           shipping method and the shipping location. Therefore, it's always a good
+           idea to check with the shipping carrier directly to understand their
+           specific policies and procedures for the return of a defective item.  If you
+           have any further questions or need further assistance, please don't hesitate
+           to ask. We're here to help you with any additional information or guidance
+           you may need.
+
+  ┌─ Turn  8  (10.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Would I get the same product or a different one as replacement?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding the replacement of a defective
+           item. When it comes to receiving a replacement for a defective item, the
+           specific product you receive as a replacement may vary depending on the
+           manufacturer's policies and the availability of the replacement item.  In
+           most cases, the replacement item will be the same model and specifications
+           as the original product. The goal is to ensure that you receive a product
+           that meets your needs and expectations. However, it's important to note that
+           the specific replacement item may vary based on the availability of the
+           replacement item and the manufacturer's policies.  To ensure that you
+           receive the correct replacement item, it's important to follow the
+           manufacturer's instructions for the replacement process. This may include
+           providing the necessary information, such as the product model number or
+           serial number, and following any specific instructions provided by the
+           manufacturer.  If you have any further questions or need further assistance
+           with the replacement process, please don't hesitate to ask. We're here to
+           help you throughout the entire process to ensure that you receive the
+           replacement item that meets your needs and expectations.
+
+  ┌─ Turn  9  (9.8s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Actually I'd rather just get a refund than a replacement
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your message to us regarding your preference for a refund
+           instead of a replacement for a damaged item. Based on the verified data from
+           our systems, if you choose to keep the damaged item, a partial credit may be
+           offered as a courtesy. This partial credit is a courtesy offered to you as a
+           gesture of goodwill. The exact amount of the partial credit will depend on
+           the specific circumstances and the policies of the manufacturer or seller.
+           It's important to note that the partial credit is offered as a courtesy and
+           may not cover the full value of the damaged item. The exact amount of the
+           partial credit will be determined based on the specific circumstances and
+           the policies of the manufacturer or seller.  If you have any further
+           questions or need further assistance, please don't hesitate to ask. We're
+           here to help you with any further questions or concerns you may have.
+
+  ┌─ Turn 10  (7.2s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Please process a refund for order ORD-88210
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 47). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn 11  (7.3s)  intent=product_inquiry  sent=positive  esc=False  ver=False
+  │  USER : Great. Can you recommend a more durable alternative headphone?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your message. I understand that you're looking for a more
+           durable alternative to the Sony Extra Bass Bluetooth Headphones. Based on
+           the verified data from our systems, I recommend considering the L LINPA
+           World Wireless Earbuds as a more durable alternative. These earbuds are
+           designed to be portable and are built to withstand various conditions. They
+           are also equipped with a true stereo sound experience, ensuring a high-
+           quality audio experience. The L LINPA World Wireless Earbuds are a great
+           option if you're looking for a more durable and portable option. If you have
+           any further questions or need any further assistance, please don't hesitate
+           to ask.
+
+  ┌─ Turn 12  (6.9s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What's the warranty on that one?
+  │  TOOLS: ['search_policy_knowledge', 'search_product_knowledge']
+  └─ BOT  :
+           Thank you for your message. I understand that you would like to know the
+           warranty for the product. Based on the verified data from our systems, the
+           Sony MDR-7506 Professional Large Diaphragm Headphones come with a 1-year
+           manufacturer warranty. This warranty covers defects in materials and
+           workmanship under normal use conditions. It is important to note that the
+           warranty does not cover accidental damage, misuse, or unauthorized repairs
+           performed by third parties.  If you have any further questions or need any
+           further assistance, please don't hesitate to ask. I'm here to help!
+
+  ✓  No issues detected
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 6. Discount and promo hunt: all general inquiry, no ID needed
+  NOTE    : Pure policy/product questions — ID gate must never fire
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you have any discount codes or promotions right now?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (0.0s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you offer student discounts?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (2.3s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What about a first-time buyer discount?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  4  (0.0s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you have bundle deals on electronics?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected tool 'search_product_knowledge' not called (got [])
+
+  ┌─ Turn  5  (3.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I'm looking for wireless earbuds and a phone stand together
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I appreciate your interest in finding wireless earbuds and a phone stand
+           together. While I don't have specific information about bundle deals on
+           electronics, I can help you explore various options available on our
+           platform. If you have any other questions or need further assistance, please
+           feel free to ask.
+
+  ┌─ Turn  6  (0.0s)  intent=check_stock  sent=neutral  esc=False  ver=False
+  │  USER : Do you have any loyalty rewards?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  7  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How do I earn points or rewards?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  8  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Are there seasonal sales coming up?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  9  (5.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is the cheapest wireless earbud you carry?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I appreciate your interest in finding the cheapest wireless earbuds we
+           carry. Based on the verified data from our systems, the Wireless Earbuds for
+           Sleeping, which are smaller and lighter, are the most affordable option at
+           $43.99. These earbuds are designed for sleeping, side sleeping, and are
+           specifically designed for noise blocking, insomnia, snoring, and air travel.
+           They are also suitable for meditation and relaxation. If you have any
+           further questions or need additional assistance, please feel free to ask.
+
+  ┌─ Turn 10  (6.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you price match if I find it cheaper elsewhere?
+  │  TOOLS: ['search_policy_knowledge', 'search_product_knowledge']
+  └─ BOT  :
+           I appreciate your inquiry about our price matching policy. At Amazon, we
+           understand the importance of competitive pricing and are committed to
+           ensuring that our customers receive the best value for their money. While we
+           strive to offer competitive prices, our primary focus is on providing a wide
+           range of high-quality products and exceptional customer service. If you have
+           any specific concerns or questions about our pricing or any other aspect of
+           our products or services, please feel free to ask. I'm here to help and
+           provide any further information you may need.
+
+  ┌─ Turn 11  (5.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What's your lowest price guarantee policy?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your interest in our policies and your desire to understand our
+           policies better. I'm here to provide you with the information you need.
+           Regarding the lowest price guarantee policy, we understand the importance of
+           competitive pricing for our customers. We strive to offer competitive prices
+           for the products we offer. However, please note that the lowest price
+           guarantee policy is not applicable in this case.  If you have any other
+           questions or if there's anything else I can assist you with, please feel
+           free to ask.
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 7. Full emotional arc: calm start → frustration peak → de-escalation → resolution
+  NOTE    : Tracks sentiment arc across 12 turns; escalation must fire at peak, drop after calm
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Hi, I'm just checking on an order I placed
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (5.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local, order ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Identity confirmed — welcome, **Demo Customer**! You're a **Gold** member.
+           What would you like to know about order **ORD-88210**?  Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  3  (4.2s)  intent=track_order  sent=neutral  esc=False  ver=False
+  │  USER : OK it says shipped. The tracking hasn't moved in 9 days though
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           I appreciate your patience and understanding. I understand that you have
+           been waiting for the tracking information for your order with the number
+           ORD-88210. The expected delivery date is 2026-05-08. I apologize for any
+           inconvenience caused by the delay in the tracking information. Our team is
+           working to investigate the issue and ensure that the tracking information is
+           updated as soon as possible. Thank you for your understanding and patience.
+
+  ┌─ Turn  4  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I've emailed before about this and got no response. This is frustrating
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  5  (4.0s)  intent=general_inquiry  sent=frustrated  esc=True  ver=False
+  │  USER : This is absolutely ridiculous. I've been waiting 3 weeks
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I understand your frustration and the urgency to resolve the issue with your
+           package. The policy regarding missing items and the process for reporting a
+           lost package is clear. If your package is still missing after 48 hours,
+           please reach out to our support team for further assistance. We are here to
+           help you and ensure that your concerns are addressed.
+
+  ┌─ Turn  6  (7.3s)  intent=refund_request  sent=frustrated  esc=True  ver=False
+  │  USER : I want a full refund AND I want to speak to a manager
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 48). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  7  (12.8s)  intent=refund_request  sent=neutral  esc=True  ver=False
+  │  USER : Fine. Just process my refund for ORD-88210
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 49). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  8  (0.0s)  intent=compliment  sent=positive  esc=True  ver=False
+  │  USER : OK thank you for processing that
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ┌─ Turn  9  (0.0s)  intent=general_inquiry  sent=frustrated  esc=True  ver=False
+  │  USER : I appreciate it. I was just really frustrated
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ⚠  Escalated unexpectedly — should stay calm
+
+  ┌─ Turn 10  (3.4s)  intent=product_inquiry  sent=neutral  esc=True  ver=False
+  │  USER : What's a good replacement product you'd recommend?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I'm on it! I understand that you're looking for a good replacement product.
+           To provide you with the best recommendation, could you please provide me
+           with more details about the product you are looking for? This will help me
+           provide you with the most suitable and relevant recommendation.
+
+  ┌─ Turn 11  (13.9s)  intent=return_item  sent=positive  esc=True  ver=False
+  │  USER : Thanks. One last thing — what's your return policy if I don't like it?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your request for information about our return policy. Here are
+           the details:  1. **Policy (Returns - Holiday Season):** During the holiday
+           season, our return policy is extended for customer convenience. If you have
+           an item that was shipped between October 1 and December 31, you can return
+           it until January 31 of the following year. This extended period allows you
+           to evaluate your holiday gifts and initiate a return if necessary.  2.
+           **Policy (Returns - Seller Returns):** If you have purchased an item from a
+           third-party seller, the return process may vary. In such cases, you are
+           required to send the returned item directly to the seller. The seller is
+           responsible for providing a return address within the United States or a
+           pre-paid return label. If the seller does not respond within 48 hours, you
+           may be eligible for a refund under the A-to-z Guarantee.  3. **Policy
+           (Returns - Timeline):** The standard return window for most items is 30 days
+           from the date of delivery. This means that if you receive an item and decide
+           to return it within 30 days, you should be able to initiate a return.
+           However, it's important to note that specific products may have their own
+           specific return policies. It's always a good idea to check the specific
+           product page for any exceptions to the general rule.  I hope this
+           information helps! If you have any further questions or need any further
+           assistance, please don't hesitate to ask.
+
+  ┌─ Turn 12  (0.0s)  intent=compliment  sent=positive  esc=True  ver=False
+  │  USER : Great, you've been helpful. Thank you
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ⚠  Escalated unexpectedly — should stay calm
+
+  ✗  2 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 8. Account security concern: unauthorized access worry → order review
+  NOTE    : Customer suspects account compromise; reviews orders; no data leakage
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I think someone may have accessed my account without my permission
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Demo Customer**! I've verified your account (Gold member). Which
+           order can I help you with, or what else can I do for you today?  I don't
+           have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I saw some activity I don't recognize — can you check my recent orders?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected tool 'get_account_info' not called (got [])
+
+  ┌─ Turn  4  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is my current order count?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected tool 'get_account_info' not called (got [])
+
+  ┌─ Turn  5  (4.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Can you look up order ORD-88210 — did I place that?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  6  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : OK that one is mine. What items are in it?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected 'headphone' in reply but not found
+
+  ┌─ Turn  7  (10.7s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How do I secure my account going forward?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Demo Customer**: you're a **Gold** member
+           since 2026-05-05, with 6 open order(s) and 9 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn  8  (0.0s)  intent=payment_issue  sent=neutral  esc=False  ver=False
+  │  USER : Can you see my payment method on file?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  9  (3.9s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What personal data do you store on my account?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Demo Customer**: you're a **Gold** member
+           since 2026-05-05, with 6 open order(s) and 9 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn 10  (4.2s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How do I delete my account if I want to?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Demo Customer**: you're a **Gold** member
+           since 2026-05-05, with 6 open order(s) and 9 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn 11  (0.0s)  intent=account_access  sent=positive  esc=False  ver=False
+  │  USER : OK thanks, I think I'm OK. I'll change my password as a precaution
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ✗  3 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 9. Multi-category product hunt: earbuds → laptop stand → phone case → camera
+  NOTE    : Pure product browsing across categories; ID gate must never fire
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Hi, I'm shopping for a few things today
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (7.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : First I need some wireless earbuds under $50
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in our wireless earbuds. I understand that
+           you're looking for a wireless option under $50. Based on the verified data,
+           we have a great option for you: the Wireless Earbuds with a Bluetooth 5.2
+           connection. These earbuds offer a true wireless experience with a 35-hour
+           playtime and an IPX5 rating for water resistance. They also feature a
+           microphone for clear communication. The earbuds are designed for both work
+           and sports, making them a versatile choice. They are compatible with
+           Android, iOS, and Mac devices. The earbuds are priced at $29.99, which is
+           within your budget. If you have any further questions or need any additional
+           information, feel free to ask. I'm here to help you make the best decision.
+
+  ┌─ Turn  3  (4.6s)  intent=cancel_order  sent=neutral  esc=False  ver=False
+  │  USER : Do any of those have active noise cancellation?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           Thank you for your interest in our digital services and the need for active
+           noise cancellation. While our digital services are designed to provide a
+           seamless and accessible experience, they may not have the same level of
+           active noise cancellation as physical devices. However, we understand the
+           importance of a quiet and focused environment, especially when it comes to
+           digital experiences. If you have any other questions or need further
+           assistance, please feel free to ask.
+
+  ⚠  Found unwanted 'cancellation' in reply
+
+  ┌─ Turn  4  (7.3s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : OK great, I also need a laptop stand for a 15 inch laptop
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in a laptop stand for your 15-inch laptop. Based
+           on the verified data, I recommend the "Laptop Stand for Desk - Adjustable
+           Height Laptop Riser with 360° Rotating Base" as a suitable option for your
+           needs. This stand is designed to provide a sturdy and adjustable height for
+           your laptop, ensuring a comfortable and ergonomic setup. It is foldable and
+           portable, making it convenient for on-the-go use. The stand is suitable for
+           all 10 to 17-inch laptops, which includes your 15-inch laptop. It is a great
+           choice to enhance your laptop experience. If you have any further questions
+           or need any additional assistance, please feel free to ask.
+
+  ┌─ Turn  5  (8.6s)  intent=product_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Does it need to be adjustable in height?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in a laptop stand for your 15-inch laptop. Based
+           on the verified data, I recommend the "Laptop Stand for Desk, Ergonomic
+           Computer Stand with 10.43" Height Adjustment" as a suitable option for your
+           needs. This stand is designed to provide an ergonomic and comfortable setup
+           for your laptop. It is adjustable in height, allowing you to customize the
+           stand to your specific needs. The stand is made of aluminum, ensuring
+           durability and stability. It is also foldable, making it convenient for
+           portability. The stand is compatible with all 10 to 17-inch laptops,
+           including your 15-inch laptop. It is a great choice for enhancing your
+           laptop experience. If you have any further questions or need any additional
+           assistance, please feel free to ask.
+
+  ┌─ Turn  6  (8.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Yes, height adjustable please, and foldable for travel
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in a height-adjustable and foldable laptop
+           stand. Based on the verified data, I recommend the "Laptop Stand for Desk -
+           Adjustable Height Laptop Riser with 360° Rotating Base" as a suitable option
+           for your needs. This stand is designed to provide an ergonomic and
+           comfortable setup for your 15-inch laptop. It is adjustable in height,
+           allowing you to customize the stand to your specific needs. The stand is
+           made of aluminum, ensuring durability and stability. It is also foldable,
+           making it convenient for travel. The stand is compatible with all 10 to
+           17-inch laptops, including your 15-inch laptop. It is a great choice for
+           enhancing your laptop experience. If you have any further questions or need
+           any additional assistance, please feel free to ask.
+
+  ┌─ Turn  7  (5.9s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is the weight limit on that stand?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in the weight limit of the stand. Based on the
+           verified data, the stand can hold up to 88 lbs. This weight capacity ensures
+           that the stand can support the weight of your 15-inch laptop and any other
+           accessories or devices you may have. The stand is designed to provide a
+           stable and secure setup for your laptop, ensuring a comfortable and
+           ergonomic experience. If you have any further questions or need any
+           additional assistance, please feel free to ask.
+
+  ┌─ Turn  8  (11.4s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I also want a phone case — what brands do you carry?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in a phone case. We have a variety of phone
+           cases available for different brands and models. Here are some of the brands
+           we carry:  1. Sony: We have a range of phone cases specifically designed for
+           Sony phones. These cases are designed to provide protection and enhance the
+           overall phone experience.  2. Soundcore: We offer a range of phone cases for
+           Soundcore phones. These cases are designed to provide protection and enhance
+           the overall phone experience.  3. Beats: We have a range of phone cases
+           specifically designed for Beats phones. These cases are designed to provide
+           protection and enhance the overall phone experience.  4. OneOdio: We offer a
+           range of phone cases specifically designed for OneOdio phones. These cases
+           are designed to provide protection and enhance the overall phone experience.
+           5. Bose: We have a range of phone cases specifically designed for Bose
+           phones. These cases are designed to provide protection and enhance the
+           overall phone experience.  If you have any further questions or need any
+           additional assistance, please feel free to ask.
+
+  ┌─ Turn  9  (6.4s)  intent=check_stock  sent=neutral  esc=False  ver=False
+  │  USER : Do you have one for an iPhone 15?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in the iPhone 15 charger block. We have a 20W
+           Dual Port PD Fast USB C Wall Charger Adapter that is compatible with the
+           iPhone 15. This charger is designed to provide a fast and efficient charging
+           experience for your iPhone 15. It is a great option for those who want to
+           ensure their iPhone 15 is charged quickly and efficiently. If you have any
+           further questions or need any additional assistance, please feel free to
+           ask.
+
+  ┌─ Turn 10  (7.9s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What is the return policy if I order all three and one doesn't fit?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your inquiry about the return policy for your order of all
+           three items. I understand that you are concerned about the possibility of
+           one item not fitting properly. Based on the verified data, our return policy
+           allows for the return of items that do not fit properly. In such cases, you
+           can initiate a return by visiting the 'Your Orders' page and selecting the
+           'Return or Replace Items' option. You will then be prompted to choose the
+           reason for your return and select your preferred return method. Once the
+           return is initiated, you will receive a return authorization and
+           instructions on how to send the item back. If you have any further questions
+           or need any additional assistance, please feel free to ask.
+
+  ┌─ Turn 11  (9.9s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you offer free shipping if I order multiple items?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your interest in our shipping options. If you order multiple
+           items, we offer various shipping methods to ensure your items are delivered
+           to you in a timely manner. Our shipping methods include:  - Standard
+           Shipping: This is our standard shipping method, which typically takes date
+           range for delivery. - Two-Day Shipping: If you need your items to arrive
+           more quickly, our Two-Day Shipping option is a great choice. With this
+           option, you can expect your items to be delivered in date range. - One-Day
+           Delivery: For those who need their items as soon as possible, our One-Day
+           Delivery option is perfect for you. With this option, you can have your
+           items delivered to your doorstep in just one day.  These shipping methods
+           are designed to provide you with flexibility and convenience. If you have
+           any further questions or if there's anything else I can assist you with,
+           please don't hesitate to ask.
+
+  ┌─ Turn 12  (0.0s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : Perfect, thanks for all the help
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 10. Slow credential reveal: vague start → drip-feeds info → verified → deep questions
+  NOTE    : Customer is slow to provide details; tests identity patience and context retention
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : hi
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I have a question about something I ordered
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  3  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : It was a pair of headphones
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  4  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I ordered them maybe a week ago
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  5  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email? It's demo@atlas.local
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Demo Customer**! I've verified your account (Gold member). Which
+           order can I help you with, or what else can I do for you today?  I don't
+           have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  6  (6.4s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : The order number I think is ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Thank you for providing the order number and other details. I can see that
+           you are looking for information about the order with the number ORD-88210.
+           Based on the information you provided, the order number is ORD-88210. The
+           order status is order status. The shipping method used for this order is
+           UPS. The tracking number for this order is 1Z999AA10123456784. The expected
+           delivery date for this order is 2026-05-08. The items ordered are item name.
+           The total cost of the order is total amount. If you have any other questions
+           or need further assistance, please feel free to ask. I'm here to help!
+
+  ┌─ Turn  7  (4.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Yes that's it — the Blue Wireless Headphones
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in the Bluedio Wireless Headphones. The Bluedio
+           BT5 Wireless Headphones are a great choice for a wireless listening
+           experience. They are suitable for cell phones, computers, and TVs. They are
+           also suitable for travel and work. The Bluedio BT5 Wireless Headphones are a
+           great option if you are looking for a wireless listening experience.
+
+  ⚠  Expected 'ORD-88210' in reply but not found
+
+  ┌─ Turn  8  (5.4s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : When is it arriving exactly?
+  │  TOOLS: ['lookup_order', 'search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in the Bluedio H-Turbine Wireless Bluetooth
+           Headphones. Based on the order number ORD-88210, the expected delivery date
+           for your order is 2026-05-08. The order is currently in the "Shipped"
+           status, and the tracking number for your order is 1Z999AA10123456784. If you
+           have any other questions or need further assistance, please feel free to
+           ask. I'm here to help!
+
+  ┌─ Turn  9  (4.2s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What carrier is delivering it?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           I appreciate your interest in the Bluedio H-Turbine Wireless Headphones.
+           Based on the order number ORD-88210, the carrier delivering your order is
+           UPS. The expected delivery date for your order is 2026-05-08. If you have
+           any other questions or need further assistance, please feel free to ask. I'm
+           here to help!
+
+  ┌─ Turn 10  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Can I redirect it to a different address?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn 11  (6.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What if nobody is home when they try to deliver?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn 12  (0.0s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : OK thanks, that's all I needed
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 11. Refund follow-up: customer worried refund hasn't landed yet
+  NOTE    : Customer had a refund processed; now asking about timeline and status
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (5.8s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Hi, I had a refund processed recently and I'm wondering where it is
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your inquiry about the status of your refund. I understand that
+           you would like to know where it is. Based on the information provided, the
+           refund is typically processed within 3-5 business days after we receive and
+           process your return. Once the refund is issued, it may take an additional
+           2-10 business days for the credit to appear on your bank statement. You can
+           track the status of your refund in the 'Your Orders' section under the 'View
+           Return/Refund Status' section. If you have any further questions or need any
+           additional assistance, please feel free to ask.
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Demo Customer**! I've verified your account (Gold member). Which
+           order can I help you with, or what else can I do for you today?  I don't
+           have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (7.3s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : The refund was for order ORD-88210
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 50). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  4  (7.3s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : I was told the refund would take 3-5 business days
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 51). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  5  (6.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : It's been 6 days and nothing has appeared on my bank statement
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  6  (5.1s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Can you check the refund status?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 52). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  7  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What does pending_manual mean?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  8  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How much longer will the manual review take?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  9  (3.7s)  intent=general_inquiry  sent=negative  esc=False  ver=False
+  │  USER : This is getting frustrating — can I escalate?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I understand your frustration and the need for a prompt resolution. I
+           apologize for any inconvenience caused. To better assist you, could you
+           please provide me with the order number or any other relevant details
+           related to your cancellation request? This will help me provide you with the
+           most accurate and specific information regarding the cancellation process.
+
+  ⚠  Expected escalated=True but got False
+
+  ┌─ Turn 10  (9.8s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Fine, what is the maximum time a refund can take?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I understand your concern about the maximum time a refund can take.
+           According to our system, most refunds are fully processed within 3-5
+           business days after we receive and process your return. However, it's
+           important to note that the actual time it takes for the refund to appear on
+           your bank statement may vary. In some cases, it may take an additional 2-10
+           business days for the credit to appear on your bank statement.   Please keep
+           in mind that these timelines are general estimates and may vary depending on
+           various factors such as the specific vendor or the payment method used for
+           the purchase. If you have any specific concerns or questions regarding a
+           specific refund, please provide me with the necessary details such as the
+           order number or any other relevant information, and I'll be more than happy
+           to assist you further.  I hope this information helps clarify the maximum
+           time a refund can take. If you have any further questions or if there's
+           anything else I can assist you with, please don't hesitate to let me know.
+
+  ┌─ Turn 11  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : If it doesn't arrive by next week I'm disputing with my bank
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 12. Return window edge case: policy boundary questions
+  NOTE    : Customer pushes on return window details; all policy questions, no ID gate
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (4.8s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What is your standard return window?
+  │  TOOLS: ['search_policy_knowledge', 'search_product_knowledge']
+  └─ BOT  :
+           I appreciate your inquiry about our return policy. Our standard return
+           window is 30 days from the date of delivery for most items. However, during
+           the holiday season, which is from November 1 to December 31, the return
+           window is extended until January 31 of the following year. This extended
+           period allows for a more flexible return process during the holiday season.
+           If you have any further questions or need additional information, please
+           don't hesitate to ask.
+
+  ┌─ Turn  2  (5.0s)  intent=delivery_problem  sent=neutral  esc=False  ver=False
+  │  USER : Does the clock start from purchase date or delivery date?
+  │  TOOLS: ['search_policy_knowledge', 'search_product_knowledge']
+  └─ BOT  :
+           I see that you would like to know when the clock starts for the return
+           window. The return window starts from the date the item is delivered to the
+           customer. This means that the clock starts ticking from the date the item is
+           delivered to the customer. So, if you receive your item on December 1st, the
+           30-day return window would start from that date. If you have any further
+           questions or need any additional information, please feel free to ask.
+
+  ┌─ Turn  3  (6.3s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What if I ordered something as a gift and the recipient wants to return it?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about returning a gift. If you ordered an item as
+           a gift and the recipient wants to return it, you can usually initiate a
+           return. However, it's important to note that the specific return policy may
+           vary depending on the seller or the specific item you purchased. In such
+           cases, it's always a good idea to check the return policy provided by the
+           seller or the specific item you purchased. If you have any specific concerns
+           or need further assistance, please provide me with the necessary details,
+           such as the order number or the name of the item, and I'll be happy to help
+           you with the return process.
+
+  ┌─ Turn  4  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Does the gift recipient need the original receipt?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  5  (6.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What about items that have been opened and lightly used?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           I understand your concern about items that have been opened and lightly
+           used. In such cases, the return policy may vary depending on the specific
+           item and the seller's policy. It's important to check the return policy
+           provided by the seller or the specific item you purchased. The return policy
+           may have specific guidelines regarding opened and lightly used items. To get
+           the most accurate and up-to-date information, I recommend reaching out to
+           the seller or the specific item you purchased. They will be able to provide
+           you with the specific details regarding the return policy for opened and
+           lightly used items.
+
+  ┌─ Turn  6  (7.1s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Are electronics returnable even after being opened?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about the returnability of electronics after
+           being opened. The return policy for electronics can vary depending on the
+           specific item and the seller. In general, many electronics can be returned
+           within the 30-day return window, even if they have been opened. However,
+           it's important to check the specific return policy for the specific
+           electronic item you purchased. The return policy may have specific
+           guidelines regarding opened electronics. To get the most accurate and up-to-
+           date information about the returnability of opened electronics, I recommend
+           reaching out to the seller or the specific electronic item you purchased.
+           They will be able to provide you with the specific details regarding the
+           return policy for opened electronics.
+
+  ┌─ Turn  7  (7.5s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Is there a restocking fee for returned electronics?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about the restocking fee for returned
+           electronics. According to our system, a restocking fee of 15% to 50% may be
+           applied if an item is returned damaged, used, or missing parts. This fee
+           helps cover the costs of inspecting and processing items that can no longer
+           be sold as new. It's important to note that the specific restocking fee may
+           vary depending on the specific item and the seller. To get the most accurate
+           and up-to-date information about the restocking fee for your specific
+           electronics, I recommend reaching out to the seller or the specific item you
+           purchased. They will be able to provide you with the specific details
+           regarding the restocking fee for your electronics.
+
+  ┌─ Turn  8  (8.3s)  intent=return_item  sent=negative  esc=False  ver=False
+  │  USER : What if the item is damaged during return shipping?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about the return of a damaged item during
+           shipping. Our system provides the following information:  If the shipping
+           box is visibly damaged upon delivery, you may refuse the package and ask the
+           carrier to return it to Amazon. If you have already accepted the package,
+           please keep all original packaging materials until the issue is resolved.
+           This helps us determine if the damage occurred during transit or was a
+           manufacturing defect.  In some cases, we may need to initiate a claim with
+           the shipping carrier for items damaged during transit. You may be contacted
+           by the carrier to verify the damage or to inspect the packaging. Your refund
+           or replacement will not be delayed by this process.  I hope this information
+           helps. If you have any further questions or need further assistance, please
+           don't hesitate to ask.
+
+  ┌─ Turn  9  (8.5s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Can I return an item that was on sale?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about returning an item that was on sale. Our
+           system provides the following information:  Policy (Returns - Eligibility):
+           Most items purchased on Amazon can be returned within 30 days of receipt.
+           The item must be in its original condition, including all packaging,
+           manuals, and accessories. However, it's important to note that some items,
+           such as perishable goods or personal care products, may have specific return
+           requirements. These items may have specific conditions or restrictions for
+           returns. To ensure a successful return, it's always a good idea to check the
+           specific return policy for the item you purchased. This will provide you
+           with the most accurate and up-to-date information regarding the return
+           process.  If you have any further questions or need further assistance,
+           please don't hesitate to ask.
+
+  ┌─ Turn 10  (11.6s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What items are completely non-returnable?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about the returnability of certain items. Based
+           on the verified data from our systems, here are some items that are
+           completely non-returnable:  1. Hazardous materials: Items that are
+           considered hazardous materials are not eligible for return. This includes
+           flammable liquids or gases.  2. Computer laptops, desktops, and Kindles:
+           These items cannot be returned more than 30 days after delivery. This is a
+           specific policy for these types of electronic devices.  3. Items missing the
+           UPC or serial number: If an item is missing the UPC or serial number, it
+           will be rejected by the returns department. This is a specific requirement
+           for the return process.  It's important to note that these are just a few
+           examples of non-returnable items. The specific return policies may vary for
+           different products. To ensure a successful return, it's always a good idea
+           to check the specific return policy for the item you purchased. This will
+           provide you with the most accurate and up-to-date information regarding the
+           return process.  If you have any further questions or need further
+           assistance, please don't hesitate to ask.
+
+  ┌─ Turn 11  (14.4s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : OK one last thing — do you offer store credit instead of a cash refund?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your question about the possibility of receiving store credit
+           instead of a cash refund. Based on the verified data from our systems, here
+           are the relevant details:  Policy (Refunds - Methods): Refunds are typically
+           issued to the original payment method used at the time of purchase. If the
+           original credit card is expired or cancelled, the refund will still be sent
+           to the issuing bank for processing. You may also have the option to receive
+           your refund as an Amazon Gift Card balance for faster access.  Policy
+           (Refunds - Instant Refunds): Instant refunds allow you to receive your
+           refund immediately to your Amazon Gift Card balance or original credit card.
+           This option is available for select items and requires you to return the
+           product within 30 days. If the item is not received by the deadline, your
+           original payment method will be charged again.  Policy (Refunds - Partial
+           Refunds): A partial refund may be issued if an item is returned in a
+           condition other than original or is missing parts. Restocking fees of up to
+           20% may be applied to items that are not returned in their original
+           packaging. If you received a damaged item and choose to keep it, a partial
+           credit may be offered as a courtesy.  I hope this information helps. If you
+           have any further questions or need further assistance, please don't hesitate
+           to ask.
+
+  ✓  No issues detected
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 13. Persistent unverified customer: tries multiple ways to skip ID gate
+  NOTE    : Customer refuses to provide email several times before finally complying
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I want to check on my order
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I don't want to give my email, can you just look it up?
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  3  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : My name is Demo Customer, can you find me by name?
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  4  (13.7s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : Fine, can I at least know your return policy while I think about it?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your request for information about our return policy. Here are
+           the details:  1. **Returns for Items Purchased from Third-Party Sellers:**
+           If you have purchased an item from a third-party seller, you can typically
+           return the item directly to the seller. The seller is required to provide a
+           return address within the United States or a pre-paid return label. If the
+           seller does not respond within 48 hours, you may be eligible for a refund
+           under the A-to-z Guarantee.  2. **Returns During the Holiday Season:** The
+           holiday season, which typically includes the months of November and
+           December, is a time when our return policy is extended for customer
+           convenience. If you have an item that was shipped between November 1 and
+           December 31, you can return it until January 31 of the following year. This
+           extended return window allows you to evaluate your holiday gifts and
+           initiate a return if necessary.  3. **Returns for Most Items:** For most
+           items, the standard return window is 30 days from the date of delivery. This
+           means that if you receive an item and decide that it is not what you were
+           looking for or if it does not meet your expectations, you can typically
+           initiate a return within 30 days of the delivery date.  Please keep in mind
+           that these are general guidelines, and there may be specific exceptions or
+           variations depending on the specific product or seller. It's always a good
+           idea to check the specific product page or contact the seller directly for
+           any additional information or specific return policies
+
+  ┌─ Turn  5  (7.2s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : How long do returns take once initiated?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I understand that you're interested in knowing how long it takes for returns
+           to be processed once they are initiated. Based on the verified data from our
+           systems, most refunds are fully processed within 3-5 business days after we
+           receive and process your return. However, it's important to note that it may
+           take an additional 2-10 business days for the credit to appear on your bank
+           statement. This timeline can vary depending on various factors, such as the
+           specific financial institution and the processing times of your bank.  I
+           hope this information helps! If you have any further questions or if there's
+           anything else I can assist you with, please feel free to let me know.
+
+  ┌─ Turn  6  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : OK fine, my email is demo@atlas.local
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Demo Customer**! I've verified your account (Gold member). Which
+           order can I help you with, or what else can I do for you today?  I don't
+           have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  7  (4.6s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : My order number is ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  8  (4.6s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What is the exact status?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           I appreciate your request for the exact status of your order with the order
+           number **ORD-88210**. Based on the information provided, the current status
+           of your order is **Shipped**. The estimated delivery date for your order is
+           **2026-05-08**. If you have any other questions or need further assistance,
+           please feel free to ask. I'm here to help!
+
+  ┌─ Turn  9  (4.8s)  intent=track_order  sent=neutral  esc=False  ver=False
+  │  USER : What is the tracking number?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           I appreciate your request for the tracking number. Based on the verified
+           data from our systems, the tracking number for your order with the order
+           number **ORD-88210** is **1Z999AA10123456784**. This tracking number will
+           help you track the progress of your order and provide you with the most up-
+           to-date information. If you have any other questions or need further
+           assistance, please don't hesitate to ask. I'm here to help!
+
+  ┌─ Turn 10  (16.9s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Can I get a refund for it?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           I can see that you are seeking information about the possibility of a refund
+           for your order with the order number **ORD-88210**. Based on the verified
+           data from our systems, the current status of your order is **Shipped**. The
+           estimated delivery date for your order is **2026-05-08**. The tracking
+           number for your order is **1Z999AA10123456784**.   Regarding the possibility
+           of a refund, our refund policy allows for various situations where a refund
+           may be applicable. These situations include, but are not limited to, the
+           following:  1. **Product Defect:** If the product you received is defective
+           or does not meet your expectations, you may be eligible for a refund. 2.
+           **Product Not as Described:** If the product you received does not match the
+           description provided, you may be eligible for a refund. 3. **Product Not
+           Received:** If you have not received your product within the expected
+           delivery time, you may be eligible for a refund. 4. **Change of Mind:** In
+           some cases, if you change your mind about a purchase, you may be eligible
+           for a refund. 5. **Cancellation:** If you have changed your mind about a
+           purchase and would like to cancel it, you may be eligible for a refund.
+           It's important to note that each vendor or seller may have their own
+           specific refund policy. It's always a good idea to review the specific
+           refund policy of the vendor or seller from which you made the
+
+  ┌─ Turn 11  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Has it been confirmed?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected 'refund' in reply but not found
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 14. Buyer's remorse: second-guessing purchase, needs reassurance
+  NOTE    : Customer regrets order, asks about cancel/return, then re-commits to keeping it
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Hi, I think I made a mistake ordering something
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I just placed an order and I'm not sure I want it anymore
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn  3  (4.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is demo@atlas.local and the order is ORD-88210
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Identity confirmed — welcome, **Demo Customer**! You're a **Gold** member.
+           What would you like to know about order **ORD-88210**?  Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  4  (8.6s)  intent=cancel_order  sent=neutral  esc=False  ver=False
+  │  USER : Can I still cancel it?
+  │  TOOLS: ['cancel_order', 'search_policy_knowledge', 'lookup_order']
+  └─ BOT  :
+           We're unable to cancel this order. Order ORD-88210 cannot be cancelled — it
+           has already shipped. You may return it after delivery. Here's the latest on
+           **ORD-88210**: Status is **Shipped**, shipped via UPS (tracking:
+           `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items: Blue
+           Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  5  (4.2s)  intent=track_order  sent=neutral  esc=False  ver=False
+  │  USER : Oh it already shipped? What are my options then?
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           I understand your concern about the order that has already been shipped.
+           Since the order has been shipped, we cannot cancel it. However, you can
+           still return the item if it is within the return policy period. The
+           estimated delivery date for your order is **2026-05-08**. If you have any
+           further questions or need any assistance, please feel free to ask.
+
+  ┌─ Turn  6  (8.7s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What is the return process if I decide I don't want it?
+  │  TOOLS: ['lookup_order', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  7  (6.5s)  intent=refund_request  sent=neutral  esc=False  ver=False
+  │  USER : Will I get a full refund or is there a restocking fee?
+  │  TOOLS: ['lookup_order', 'process_refund', 'search_policy_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Your refund of **USD 89.99** has been initiated
+           (Refund ID: 54). Status: **pending_manual**. You'll receive a confirmation
+           email shortly. Is there anything else I can help you with?
+
+  ┌─ Turn  8  (5.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What were the product details again for ORD-88210?
+  │  TOOLS: ['lookup_order', 'search_product_knowledge']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ┌─ Turn  9  (5.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Actually the Blue Wireless Headphones sound useful, maybe I'll keep them
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in the Hearprotek Wireless Headphones. They are
+           a great choice for a good night's sleep. The Hearprotek Wireless Headphones
+           are designed to provide a relaxing and soothing experience. With their 25+
+           hour playtime and noise-canceling features, they are perfect for side
+           sleepers. The lightweight and comfortable design ensures a comfortable and
+           restful sleep. The Hearprotek Wireless Headphones are a great option for
+           those who want to enjoy a good night's sleep.
+
+  ┌─ Turn 10  (0.0s)  intent=product_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Can you tell me more about their features?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ⚠  Expected tool 'search_product_knowledge' not called (got [])
+
+  ┌─ Turn 11  (2.4s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : OK I'll keep the order. Thanks for your patience
+  │  TOOLS: ['lookup_order']
+  └─ BOT  :
+           Here's the latest on **ORD-88210**: Status is **Shipped**, shipped via UPS
+           (tracking: `1Z999AA10123456784`), estimated delivery **2026-05-08**. Items:
+           Blue Wireless Headphones x1. Is there anything else I can help you with?
+
+  ✗  1 issue(s)
+
+════════════════════════════════════════════════════════════════════════════════
+  SCENARIO: 15. Proactive support: happy verified customer explores full suite of services
+  NOTE    : Customer is satisfied, verifies, checks account, gets product rec, asks about referrals
+════════════════════════════════════════════════════════════════════════════════
+
+  ┌─ Turn  1  (0.0s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : Hi! I love shopping here, you guys are great
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ┌─ Turn  2  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I want to check some details on my account
+  │  TOOLS: []
+  └─ BOT  :
+           I'd be happy to help! To look up your order or account details, I'll need to
+           verify your identity first. What's the email address on your account?
+
+  ┌─ Turn  3  (0.0s)  intent=general_inquiry  sent=neutral  esc=False  ver=True
+  │  USER : My email is alice.johnson@demo.atlas
+  │  TOOLS: []
+  └─ BOT  :
+           Got it, **Alice Johnson**! I've verified your account (Platinum member).
+           Which order can I help you with, or what else can I do for you today?  I
+           don't have specific information about that in our system. For detailed help,
+           please contact our support team directly or visit our help center.
+
+  ┌─ Turn  4  (5.3s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What tier am I on and what benefits do I get?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Thank you for your message! I'm here to provide you with the information you
+           need about your account tier and the benefits you can enjoy.  As a Platinum
+           member, you have access to a range of exclusive benefits and privileges.
+           These may include:  1. list the specific benefits and privileges associated
+           with the {{account type account tier.}}  If you have any further questions
+           or if there's anything else I can assist you with, please don't hesitate to
+           ask. I'm here to help you make the most of your Platinum membership.
+
+  ┌─ Turn  5  (3.8s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : How many orders have I placed in total?
+  │  TOOLS: ['get_account_info']
+  └─ BOT  :
+           Here's your account summary, **Alice Johnson**: you're a **Platinum** member
+           since 2024-05-17, with 7 open order(s) and 8 total orders. Is there anything
+           else I can help you with?
+
+  ┌─ Turn  6  (6.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : I'm looking for a good Bluetooth speaker for a home office
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in finding a good Bluetooth speaker for your
+           home office. Based on the verified data from our systems, I would recommend
+           the abramtek 100w bluetooth speaker. It is a portable and powerful speaker
+           that offers a 100-watt output, ensuring a loud and immersive sound
+           experience. It also features a subwoofer for deep bass, which can enhance
+           your audio experience. The abramtek 100w bluetooth speaker is a great choice
+           for a home office, providing a great sound experience for your work or any
+           other activities you may have in your home office.
+
+  ┌─ Turn  7  (6.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Something under $40 with good bass and long battery
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           Thank you for your interest in finding a good speaker with good bass and a
+           long battery life under $40. Based on the verified data from our systems, I
+           would recommend the Dayton Audio DAEX32QMB-4 Quad Feet Mega Bass 32mm
+           Exciter. It is a 40-watt speaker that offers a powerful bass experience. It
+           is a portable speaker that can be used in your home office. It is a great
+           option for those who want a good bass experience and a long battery life.
+           The Dayton Audio DAEX32QMB-4 is a great option for your home office.
+
+  ┌─ Turn  8  (14.4s)  intent=return_item  sent=neutral  esc=False  ver=False
+  │  USER : What is the return policy if the sound quality isn't what I expected?
+  │  TOOLS: ['search_policy_knowledge']
+  └─ BOT  :
+           I appreciate your inquiry about the return policy if the sound quality of
+           the speaker doesn't meet your expectations. Based on the verified data from
+           our systems, here are the relevant details:  1. **Policy (Returns - Seller
+           Returns):** If you have purchased an item from a third-party seller, you can
+           typically return the item to the seller for a refund. The seller is required
+           to provide a return address within the United States or a pre-paid return
+           label. If the seller does not respond within 48 hours, you may be eligible
+           for a refund under the A-to-z Guarantee.  2. **Policy (Returns -
+           Eligibility):** Most items purchased on Amazon can be returned within 30
+           days of receipt. To be eligible for a return, the product must be in its
+           original condition, including all packaging, manuals, and accessories. It's
+           important to note that some items, such as perishables or personal care
+           products, may have specific return requirements.  3. **Policy (Returns -
+           Return Labels):** Amazon provides various return label options, including
+           pre-paid labels for dropped off returns at designated locations. If the
+           return is due to an error on Amazon's part, the return shipping is typically
+           free of charge. However, for other returns, the cost of return shipping may
+           be deducted from your total refund amount.  I hope this information helps
+           clarify the return policy for you. If you have any further questions or need
+           additional assistance, please don't hesitate to ask.
+
+  ┌─ Turn  9  (0.0s)  intent=check_stock  sent=neutral  esc=False  ver=False
+  │  USER : Do you have a referral program?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn 10  (0.0s)  intent=discount_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : Do you offer gift wrapping?
+  │  TOOLS: []
+  └─ BOT  :
+           I don't have specific information about that in our system. For detailed
+           help, please contact our support team directly or visit our help center.
+
+  ┌─ Turn 11  (9.5s)  intent=general_inquiry  sent=neutral  esc=False  ver=False
+  │  USER : What's the best way to stay updated on new products and sales?
+  │  TOOLS: ['search_product_knowledge']
+  └─ BOT  :
+           To stay updated on new products and sales, there are several effective ways
+           to keep yourself informed. One of the best ways is to subscribe to our
+           newsletter. By subscribing, you will receive regular updates on new product
+           launches, sales, and promotions. Additionally, you can also follow us on
+           social media platforms such as Instagram, Facebook, and Twitter. We
+           regularly post updates, promotions, and new product announcements on our
+           social media channels. By following us on these platforms, you can stay up
+           to date with the latest news and offers. Additionally, you can also check
+           our website regularly for any new product launches, sales, and promotions.
+           Our website is regularly updated with the latest information on new products
+           and sales. By keeping an eye on our website, you can stay informed about the
+           latest products and sales. By following these methods, you can ensure that
+           you are always up to date with the latest products and sales.
+
+  ┌─ Turn 12  (0.0s)  intent=general_inquiry  sent=positive  esc=False  ver=False
+  │  USER : Alright, thanks so much — keep up the great work!
+  │  TOOLS: []
+  └─ BOT  :
+           You're very welcome! I'm glad I could help. If you ever need anything else,
+           don't hesitate to reach out. Have a great day!
+
+  ✓  No issues detected
+
+
+################################################################################
+  ISSUES SUMMARY ACROSS ALL 15 NEW SCENARIOS
+################################################################################
+
+  ► 3. Holiday delivery panic: expedite → cancel attempt → return fallback
+       T7: Expected 'return' in reply but not found
+
+  ► 4. Billing dispute: suspected double charge → escalation → refund
+       T12: Escalated unexpectedly — should stay calm
+
+  ► 6. Discount and promo hunt: all general inquiry, no ID needed
+       T4: Expected tool 'search_product_knowledge' not called (got [])
+
+  ► 7. Full emotional arc: calm start → frustration peak → de-escalation → resolution
+       T9: Escalated unexpectedly — should stay calm
+       T12: Escalated unexpectedly — should stay calm
+
+  ► 8. Account security concern: unauthorized access worry → order review
+       T3: Expected tool 'get_account_info' not called (got [])
+       T4: Expected tool 'get_account_info' not called (got [])
+       T6: Expected 'headphone' in reply but not found
+
+  ► 9. Multi-category product hunt: earbuds → laptop stand → phone case → camera
+       T3: Found unwanted 'cancellation' in reply
+
+  ► 10. Slow credential reveal: vague start → drip-feeds info → verified → deep questions
+       T7: Expected 'ORD-88210' in reply but not found
+
+  ► 11. Refund follow-up: customer worried refund hasn't landed yet
+       T9: Expected escalated=True but got False
+
+  ► 13. Persistent unverified customer: tries multiple ways to skip ID gate
+       T11: Expected 'refund' in reply but not found
+
+  ► 14. Buyer's remorse: second-guessing purchase, needs reassurance
+       T10: Expected tool 'search_product_knowledge' not called (got [])
+
+  Total issues: 13 across 10 scenarios

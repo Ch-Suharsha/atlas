@@ -98,6 +98,18 @@ function renderEmpty(show) {
   empty.style.display = show ? "" : "none";
 }
 
+function deleteSession(id) {
+  const wasActive = state.sessionId === id;
+  delete state.sessions[id];
+  if (wasActive) {
+    const remaining = Object.values(state.sessions).sort((a, b) => b.created - a.created);
+    state.sessionId = remaining.length ? remaining[0].id : null;
+    ensureSession();
+  }
+  saveState();
+  renderAll();
+}
+
 function renderSessionList() {
   const list = $("#session-list");
   list.innerHTML = "";
@@ -113,6 +125,15 @@ function renderSessionList() {
     const title = document.createElement("span");
     title.textContent = s.title || "Untitled";
     li.appendChild(title);
+    const del = document.createElement("button");
+    del.className = "session-delete";
+    del.title = "Delete conversation";
+    del.textContent = "×";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteSession(s.id);
+    });
+    li.appendChild(del);
     li.addEventListener("click", () => {
       state.sessionId = s.id;
       saveState();
@@ -431,6 +452,10 @@ function buildCustomerEvidenceSection(m) {
     ul.className = "customer-tool-list";
     ul.setAttribute("aria-label", "Support actions");
     for (const t of tools) {
+      // Policy knowledge lookups are intentionally hidden from the customer
+      // view — the RAG still runs on the backend but we do not expose policy
+      // source attribution (topic, section, source URL, hit count) to end users.
+      if (t.name === "search_policy_knowledge") continue;
       const ok = t.result && t.result.ok !== false;
       const li = document.createElement("li");
       li.className = "customer-tool-item" + (ok ? "" : " customer-tool-item--warn");
@@ -465,21 +490,9 @@ function buildCustomerEvidenceSection(m) {
     wrap.appendChild(box);
   }
 
-  if (policies.length) {
-    const box = document.createElement("section");
-    box.className = "customer-ev-block";
-    box.innerHTML = `<h4 class="customer-ev-block__title">Policy references</h4>
-      <p class="customer-ev-block__lede">Excerpts retrieved from our support policy guides.</p>
-      <div class="customer-policy-grid" role="list"></div>`;
-    const grid = box.querySelector(".customer-policy-grid");
-    policies.slice(0, 5).forEach((row) => {
-      const holder = document.createElement("div");
-      holder.setAttribute("role", "listitem");
-      holder.innerHTML = buildCustomerPolicyCard(row);
-      grid.appendChild(holder);
-    });
-    wrap.appendChild(box);
-  }
+  // Policy source cards are intentionally suppressed on the customer view.
+  // The RAG retrieval still runs on the backend — we just don't expose
+  // the raw policy text or source attribution to the end user.
 
   if (recs.length) {
     const box = document.createElement("section");
