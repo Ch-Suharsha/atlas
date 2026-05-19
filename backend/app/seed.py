@@ -27,9 +27,9 @@ RNG = random.Random(20260502)
 # ── 15 demo customers ──────────────────────────────────────────────────────────
 CUSTOMERS: List[Dict[str, Any]] = [
     {"id": "1",  "name": "Demo Customer",     "email": "meetp0006@gmail.com",               "tier": "Gold",     "days_ago": 365},
-    {"id": "2",  "name": "Alice Johnson",      "email": "alice.johnson@demo.atlas",       "tier": "Platinum", "days_ago": 720},
-    {"id": "3",  "name": "Bob Martinez",       "email": "bob.martinez@demo.atlas",        "tier": "Silver",   "days_ago": 180},
-    {"id": "4",  "name": "Carol Williams",     "email": "carol.williams@demo.atlas",      "tier": "Gold",     "days_ago": 540},
+    {"id": "2",  "name": "Harsha",              "email": "suharshach007@gmail.com",       "tier": "Platinum", "days_ago": 720},
+    {"id": "3",  "name": "Himaja Sree",          "email": "himajasree8@gmail.com",          "tier": "Silver",   "days_ago": 180},
+    {"id": "4",  "name": "Chandana Rondla",    "email": "chandanareddyrondla@gmail.com",  "tier": "Gold",     "days_ago": 540},
     {"id": "5",  "name": "David Chen",         "email": "david.chen@demo.atlas",          "tier": "Bronze",   "days_ago": 45},
     {"id": "6",  "name": "Emma Davis",         "email": "emma.davis@demo.atlas",          "tier": "Platinum", "days_ago": 900},
     {"id": "7",  "name": "Frank Wilson",       "email": "frank.wilson@demo.atlas",        "tier": "Silver",   "days_ago": 210},

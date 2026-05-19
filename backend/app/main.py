@@ -146,7 +146,12 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
                 flags=re.IGNORECASE,
             )
             _cred_stripped = re.sub(r'[\s\-/,.:;!?]+', ' ', _cred_stripped).strip()
-            if _cred_stripped:
+            # Remove bare filler words that aren't a real query
+            _filler_only = re.sub(
+                r'\b(is|my|the|a|an|i|id|email|address|that|this|it|here|yes|no|ok|okay)\b',
+                '', _cred_stripped, flags=re.IGNORECASE,
+            ).strip()
+            if _filler_only:
                 ctx_id = tools.ToolContext(
                     db=db,
                     session_id=req.session_id,

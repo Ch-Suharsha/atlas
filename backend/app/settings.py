@@ -15,9 +15,17 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # LLM provider: "huggingface" or "groq"
+    llm_provider: str = Field(default="huggingface")
+
     # HF Inference Endpoint (fine-tuned Phi-4-mini)
     hf_endpoint_url: str = Field(default="")
     hf_token: str = Field(default="")
+
+    # Groq (Llama 3.3 70B or any Groq-hosted model)
+    groq_api_key: str = Field(default="")
+    groq_model: str = Field(default="llama-3.3-70b-versatile")
+
     llm_timeout_seconds: float = Field(default=120.0)
     agent_max_steps: int = Field(default=6)
 

@@ -1,125 +1,200 @@
-## SEE the Steps.md, that should be enough to start the code
+# Atlas — AI Customer Support Agent
 
+Built for DATA 298B (SJSU Graduate Data Science, Team 1). Atlas is a production-grade customer support chatbot that combines fine-tuned small LLMs with retrieval-augmented generation, a real transactional database, and a deterministic agentic tool-calling system.
 
-# Atlas — Customer Support Agent
+---
 
-Production-leaning, minimal-overhead customer support chatbot.
+## What's inside
 
-- **One FastAPI service** with native LLM **tool calling** (no regex parsing).
-- **Real Postgres** for orders, customers, refunds, tickets, conversation history. No in-memory mocks.
-- **Live Qdrant RAG** over the Amazon Products 2023 dataset (~1.4M rows).
-- **Web + email channels**: a clean Webflow-inspired chat UI and an inbound email webhook reusing the same agent.
-- **Real-time sentiment + automatic escalation** with persisted support tickets.
-- **Dockerized** end-to-end. Three services: `api`, `postgres`, `qdrant`.
+- **Fine-tuned LLMs** — four small models (Phi-4-mini, Qwen3-4B, LLaMA-3.2-3B, SmolLM3-3B) fine-tuned with QLoRA on real customer support conversation data
+- **Groq API** (llama-3.3-70b-versatile) for cloud inference, with a switchable HuggingFace endpoint for the fine-tuned Phi-4-mini
+- **Qdrant vector DB** — two collections: Amazon Products 2023 (~1.4M rows) + support policies; embedded with `all-MiniLM-L6-v2`
+- **PostgreSQL** — real transactional DB for customers, orders, refunds, support tickets, sessions, and email logs
+- **Deterministic tool routing** — keyword/regex-based, no LLM tool-call parsing; eliminates hallucinated tool calls entirely
+- **8 agent tools** — order lookup, refund processing, order cancellation, account info, product RAG, policy RAG, human escalation, transactional email
+- **Customer identity gate** — email/order-ID verification before any personal data is exposed
+- **Sentiment tracking** — per-message sentiment detection with cumulative session drift and auto-escalation
+- **Fully Dockerized** — 4 services: `api`, `postgres`, `qdrant`, `mailhog` (dev email preview)
 
-## Stack
-
-| Layer | Choice | Why |
-|------|--------|-----|
-| API | FastAPI + uvicorn | Async-friendly, simple |
-| LLM | Any OpenAI-compatible API (OpenAI, Azure OpenAI, OpenRouter, Together, Groq, Ollama, vLLM) | Reliable native tool calling |
-| DB | PostgreSQL 16 | Transactional truth |
-| Vector store | Qdrant 1.12 | Strong filters + simple ops |
-| Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (default, configurable) | Free + fast at 1.4M scale |
-| UI | Vanilla HTML/CSS/JS | No framework, no AI slop |
-
-## Quick start
-
-```bash
-cd "final version"
-cp .env.example .env
-# Edit .env — at minimum set OPENAI_API_KEY (or your compatible base URL + key)
-
-docker compose up --build
-```
-
-Then in another shell, **seed demo data and ingest the catalog**:
-
-```bash
-docker compose run --rm --build api python -m app.seed
-
-# Ingest — CSVs in ./data/, mounted at /data. `--build` keeps the api image in sync after code edits.
-docker compose run --rm --build api python -m app.ingest --batch-size 256
-```
-
-Open `http://localhost:8000/` for the chat UI.
-
-The ingest is **idempotent and checkpointed**: if it crashes or you stop it, rerun the same command and it resumes from the last committed batch.
+---
 
 ## Architecture
 
+![Atlas Full System Architecture](./atlas_system_diagram.png)
+
 ```
-web ─┐
-     ├──► FastAPI (/chat) ──► Postgres   (orders, refunds, tickets, sessions)
-email┘                   └──► LLM (managed) ◄── tool_calls ──► Qdrant (RAG)
+Browser / UI
+     │
+     ▼
+FastAPI (Atlas agent)
+     │
+     ├──► PostgreSQL  — customers, orders, refunds, tickets, sessions, email_log
+     │
+     ├──► Qdrant      — amazon_products_2023 (~1.4M rows) + support_policies
+     │
+     ├──► Groq API    — llama-3.3-70b-versatile (primary LLM)
+     │    or
+     │    HuggingFace — fine-tuned Phi-4-mini (switchable)
+     │
+     └──► SMTP / MailHog — transactional email
 ```
 
 Every `/chat` request:
 
-1. Detects sentiment + intent on the new message (keyword rules; cheap, no extra LLM call).
-2. Loads the last N turns from Postgres.
-3. Calls the managed LLM with the tool catalog. The model decides which tools to call.
-4. Each tool runs **live**: real SQL, real vector search, real SMTP. Results feed back into the loop.
-5. Once the model emits a final assistant message, we persist user + assistant turns and respond with reply, sentiment, intent, escalated, tool calls, and RAG hits.
-
-## Tools available to the agent
-
-| Name | Implementation |
-|------|----------------|
-| `lookup_order` | Postgres `SELECT` + customer ownership check |
-| `process_refund` | Postgres `INSERT` with idempotency key (`UNIQUE(order_id, request_key)`) |
-| `get_account_info` | Postgres aggregate over the authenticated customer |
-| `search_product_knowledge` | Live Qdrant cosine search; results returned with score + payload |
-| `escalate_to_human` | Postgres `INSERT` into `support_tickets` (open status) |
-| `send_customer_email` | SMTP send + audit row in `email_log` (record-only fallback when SMTP unset) |
-
-## Outbound email (Amazon SES SMTP)
-
-Atlas uses **`smtplib` + STARTTLS on port 587**, which aligns with **[SES SMTP](https://docs.aws.amazon.com/ses/latest/dg/send-email-using-smtp.html)**.
-
-**Setup (quick):**
-
-1. In **SES**, complete your wizard step: verify **`SMTP_FROM`** (e.g. `saurabh.suman@sjsu.edu`) via the verification email Amazon sends — unverified identities cannot send reliably.
-2. **Region matters:** use the SES console dropdown you’re building in — N. Virginia is **`email-smtp.us-east-1.amazonaws.com`**. Match `SMTP_HOST` in `.env` to **[your region’s endpoint](https://docs.aws.amazon.com/ses/latest/dg/smtp-connect.html)**.
-3. Go to **SMTP settings → Create SMTP credentials** and paste the **SMTP username/password** into `SMTP_USERNAME` / `SMTP_PASSWORD` in `.env` (different from arbitrary IAM keys; SES generates these).
-4. **Sandbox:** by default SES only delivers to **verified recipient** addresses unless you **[request production access](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html)** — verify testers under **SES → Verified identities**.
-5. `docker compose up -d --build` (or restart `api`) after editing `.env`.
-
-No code changes beyond env are needed; **`send_customer_email`** already routes through SMTP.
+1. Runs keyword-based sentiment + intent detection (no extra LLM call)
+2. Verifies customer identity if the query touches personal data
+3. Routes tools deterministically based on keyword sets
+4. Calls tools live — real SQL, real vector search, real SMTP
+5. Builds LLM prompt grounded in tool results
+6. Applies 5 safety nets — falls back to template response if LLM fails to ground tool data
+7. Persists full turn to Postgres and responds with reply, sentiment, intent, tool calls, and RAG hits
 
 ---
 
-## Identity / authorization
+## Fine-tuned models
 
-The web UI lets you set a customer ID and email; the chat API treats those as the verified caller. Tools that touch order data **enforce `order.customer_id == authenticated_customer.id` in SQL**. Replace this with your real auth (JWT, cookie session, email verification) before exposing publicly — the contract is already in place inside `tools.py`.
+All four models fine-tuned with QLoRA via Unsloth on Google Colab A100. Config: LoRA r=16, alpha=32, dropout=0.05, 7 target modules, 3 epochs.
 
-## Configuration (excerpt — full list in `.env.example`)
+| Model | Base | Eval Loss |
+|-------|------|-----------|
+| Phi-4-mini | `unsloth/phi-4-mini-instruct-bnb-4bit` | 0.4529 |
+| Qwen3-4B | `unsloth/qwen3-4b-unsloth-bnb-4bit` | 0.3540 |
+| LLaMA-3.2-3B | `unsloth/llama-3.2-3b-instruct-bnb-4bit` | 0.3379 |
+| SmolLM3-3B | `unsloth/SmolLM3-3B` | **0.3220** |
 
-| Var | Default | Purpose |
-|-----|---------|---------|
-| `OPENAI_API_KEY` | _(required)_ | Provider API key |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Switch to Azure/OpenRouter/Ollama by changing this |
-| `LLM_MODEL` | `gpt-4o-mini` | Any tool-calling capable model on your provider |
-| `EMBEDDING_MODEL` | `all-MiniLM-L6-v2` | Must match between ingest and runtime |
-| `EMBEDDING_DIM` | `384` | Match the model |
-| `AGENT_MAX_STEPS` | `6` | Bounded tool-call loop |
-| `LLM_TIMEOUT_SECONDS` | `60` | Per upstream call |
-| `RAG_TOP_K` | `6` | Default retrieval depth |
-| `SMTP_HOST` | _(empty)_ | **Amazon SES** (example): `email-smtp.us-east-1.amazonaws.com` — matches region in AWS console |
-| `SMTP_USERNAME` / `SMTP_PASSWORD` | _(empty)_ | From **SES → SMTP settings → Create SMTP credentials** (SES-specific secrets) |
-| `ESCALATION_WEBHOOK_URL` | _(empty)_ | Optional Slack/Teams ping when a ticket opens |
+Adapters on HuggingFace: [`Harshacheedalla007/ecommerce-support-phi`](https://huggingface.co/Harshacheedalla007/ecommerce-support-phi) and siblings.
+
+---
+
+## Agent tools
+
+| Tool | What it does |
+|------|-------------|
+| `lookup_order` | Fetch a single order with ownership check |
+| `search_customer_orders` | List all orders for authenticated customer |
+| `process_refund` | Insert refund with $30 auto-approve threshold + SHA1 idempotency key |
+| `cancel_order` | Cancel orders in `Processing` status only |
+| `get_account_info` | Aggregate customer tier, join date, order history |
+| `search_product_knowledge` | Qdrant cosine search over Amazon Products catalog |
+| `search_policy_knowledge` | Qdrant cosine search over support policies |
+| `escalate_to_human` | Open support ticket in Postgres |
+| `send_customer_email` | SMTP send + audit row in `email_log` |
+
+---
+
+## Evaluation
+
+Evaluated Fine-tuned+RAG vs Fine-tuned-only on 50 hand-crafted test cases across 7 categories.
+
+| Metric | Score |
+|--------|-------|
+| ROUGE-L | 0.191 |
+| Task Success Rate | 72.3% |
+| G-Eval (Gemini 2.5 Flash, 5 dimensions) | 3.79 / 5.0 |
+
+G-Eval dimensions: relevance, faithfulness, completeness, tone, groundedness. Best category: Escalation (4.80/5). Evaluated with `eval/evaluate.py`.
+
+---
+
+## Quick start
+
+```bash
+# Clone
+git clone https://github.com/Ch-Suharsha/atlas.git
+cd atlas
+
+# Set up environment
+cp .env.example .env
+# Edit .env — set GROQ_API_KEY at minimum
+
+# Start all services (including MailHog for local email preview)
+docker compose --profile dev-mail up --build -d
+
+# Seed demo data (run once)
+docker compose run --rm api python -m app.seed
+
+# Ingest Amazon Products catalog (~1.4M rows, idempotent + checkpointed)
+docker compose run --rm api python -m app.ingest --batch-size 256
+
+# Ingest support policies (~2 min)
+docker compose run --rm api python -m app.ingest_policies
+```
+
+- Chat UI: `http://localhost:8000`
+- Email preview (MailHog): `http://localhost:8025`
+- Health check: `http://localhost:8000/health`
+
+**Demo credentials:** customer ID `1`, email `demo@atlas.local`
+
+---
+
+## Stack
+
+| Layer | Choice |
+|-------|--------|
+| API | FastAPI + uvicorn |
+| LLM | Groq (llama-3.3-70b) / HuggingFace fine-tuned Phi-4-mini |
+| Vector DB | Qdrant 1.12 |
+| Relational DB | PostgreSQL 16 |
+| Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (384-dim) |
+| UI | Vanilla HTML/CSS/JS |
+| Email | SMTP / MailHog (dev) |
+| Infra | Docker Compose |
+
+---
+
+## Environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `LLM_PROVIDER` | `huggingface` | `groq` or `huggingface` |
+| `GROQ_API_KEY` | — | Required if using Groq |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Groq model name |
+| `HF_ENDPOINT_URL` | — | HuggingFace inference endpoint URL |
+| `DATABASE_URL` | set in compose | Postgres connection string |
+| `QDRANT_URL` | `http://qdrant:6333` | Qdrant service URL |
+| `SMTP_HOST` | — | SMTP host for outbound email |
+| `SMTP_USERNAME` / `SMTP_PASSWORD` | — | SMTP credentials |
+
+Full list in `.env.example`.
+
+---
 
 ## Health
 
-`GET /health` returns Postgres + Qdrant readiness:
-
 ```json
+GET /health
 { "status": "ok", "checks": { "postgres": "ok", "qdrant": "ok" } }
 ```
 
-## Notes
+---
 
-- **Embedding parity** is enforced: the ingest writes `embedding_model` and `embedding_dim` into the Qdrant collection metadata. Keep `EMBEDDING_MODEL` consistent between ingest runs and the API at query time.
-- **Refund integrations** are stubbed at status `pending_manual` until you wire a real PSP (Stripe, Adyen, etc.) — the row is real, the dollars are not moved without that integration.
-- **Inbound email webhook** at `POST /webhooks/email/inbound` accepts `{from, subject, text}` and routes the body through the same agent.
-- The legacy notebook prototype (`cell3_source.py`, `index.html` at the repo root) is superseded by this folder.
+## Project structure
+
+```
+atlas/
+├── backend/
+│   └── app/
+│       ├── agent.py          # Core agent loop, tool routing, safety nets
+│       ├── tools.py          # All tool executors
+│       ├── identification.py # Customer identity gate
+│       ├── sentiment.py      # Sentiment + intent detection
+│       ├── models.py         # SQLAlchemy models
+│       ├── ingest.py         # Amazon Products → Qdrant
+│       ├── ingest_policies.py
+│       ├── seed.py           # Demo data
+│       └── mailer.py
+├── web/
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+├── eval/
+│   └── evaluate.py           # G-Eval + ROUGE-L evaluation
+├── docker-compose.yml
+├── Dockerfile
+└── README.md
+```
+
+---
+
+*DATA 298B — Team 1 | Suharsha Cheedalla | SJSU Spring 2026*

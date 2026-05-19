@@ -16,10 +16,7 @@
     <script>
       (function () {
         try {
-          if (
-            localStorage.getItem("atlas_landing_v1") ||
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ) {
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             document.documentElement.classList.add("landing-seen", "intro-complete");
           }
         } catch (e) {}
@@ -87,12 +84,9 @@
           <section class="thread" id="thread" aria-live="polite">
             <div class="welcome" id="empty-state">
               <h3 class="welcome__title">What do you need help with?</h3>
-              <p class="welcome__sub">
-                Choose a quick topic or describe your situation below.
-              </p>
               <div class="chips">
-                <button type="button" class="chip" data-text="Where is my order ORD-88210?">
-                  Track order ORD‑88210
+                <button type="button" class="chip" data-text="I need help with tracking my order.">
+                  Need help with tracking
                 </button>
                 <button type="button" class="chip" data-text="I received a damaged item and need a refund.">
                   Damaged item / refund

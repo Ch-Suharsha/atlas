@@ -60,12 +60,94 @@ _ACCOUNT_KEYWORDS = {
     'orders have i', 'my account info', 'account details', 'my profile',
     'my membership', 'member benefits', 'my tier', 'account status',
 }
+_LIST_ORDERS_KEYWORDS = {
+    # display / show
+    'display my orders', 'show my orders', 'show all orders', 'show the orders',
+    'show those orders', 'show them', 'display my order', 'display those orders',
+    'display the orders', 'display them',
+    # list
+    'list my orders', 'list all orders', 'list of orders', 'list of my orders',
+    'list the orders', 'list them', 'my order list', 'order list', 'the order list',
+    # see / view
+    'see my orders', 'see all orders', 'see the orders', 'see those orders', 'see them',
+    'view my orders', 'view the orders', 'view all orders', 'view them',
+    # what / which
+    'what orders do i have', 'what are my orders', 'which orders do i have',
+    'what orders have i placed', 'what have i ordered', 'what did i order',
+    'which orders have i placed',
+    # can i / could i
+    'can i see my orders', 'can i see the orders', 'can i view my orders',
+    'can i get my orders', 'can i get a list of my orders', 'can i get the order list',
+    'could i see my orders', 'could you show my orders', 'could you list my orders',
+    # i want / i need / i would like
+    'i want to see my orders', 'i want to view my orders', 'i want the order list',
+    'i need to see my orders', 'i need my order list', 'i would like to see my orders',
+    'i would like to view my orders',
+    # pull up / bring up / get
+    'pull up my orders', 'pull up the orders', 'bring up my orders',
+    'get my orders', 'get the orders', 'get all my orders', 'fetch my orders',
+    # all / every / complete
+    'all my orders', 'all of my orders', 'every order i have', 'all orders',
+    'complete order list', 'full order list', 'entire order list',
+    # open / check
+    'check my orders', 'check all my orders', 'open my orders',
+    # details / history / summary
+    'my order details', 'order details', 'show my order details', 'see my order details',
+    'order history', 'my order history', 'show my order history', 'see my order history',
+    'view my order history', 'purchase history', 'my purchase history',
+    'my purchases', 'show my purchases', 'see my purchases',
+    # misc natural language
+    'orders i have', 'orders do i have', 'orders i placed', 'orders i have placed',
+    'those orders', 'the orders', 'my orders', 'all orders please',
+    'show orders', 'list orders', 'view orders',
+}
 _REFUND_KEYWORDS = {'refund', 'money back', 'charge back', 'reimbburse', 'reimburse'}
 _CANCEL_KEYWORDS = {
     'cancel my order', 'cancel the order', 'cancel order', 'i want to cancel',
-    'cancellation', 'cancel it', 'stop my order', "don't want it anymore",
+    'cancellation', 'cancel it', 'cancel this', 'cancel this order',
+    'can i cancel', 'want to cancel', 'like to cancel', 'need to cancel',
+    'stop my order', "don't want it anymore",
     'no longer want', 'undo my order', 'abort',
 }
+
+_EMAIL_REQUEST_RE = re.compile(
+    r'\b(send|get|email|mail|confirmation|receipt|summary)\b.*\b(email|mail|confirmation|receipt)\b'
+    r'|\b(can i get an email|send me an email|email me|mail me|send.*confirmation|get.*confirmation)\b',
+    re.IGNORECASE,
+)
+
+_USER_CONFIRM_RE = re.compile(
+    r'\b(yes|yeah|yep|yup|sure|go ahead|please do|do it|confirm|proceed|'
+    r'ok|okay|absolutely|definitely|please|sounds good|yes please|'
+    r'go for it|cancel it|refund it|process it)\b',
+    re.IGNORECASE,
+)
+
+
+def _bot_asked_cancel_confirm(history: list) -> bool:
+    """True if the last bot message was asking the user to confirm a cancellation."""
+    for msg in reversed(history[-3:]):
+        if msg.get("role") == "assistant":
+            c = msg.get("content", "").lower()
+            if "cancel" in c and any(p in c for p in [
+                "shall i", "go ahead", "would you like", "want me to",
+                "should i", "confirm", "proceed", "like me to",
+            ]):
+                return True
+    return False
+
+
+def _bot_asked_refund_confirm(history: list) -> bool:
+    """True if the last bot message was asking the user to confirm a refund."""
+    for msg in reversed(history[-3:]):
+        if msg.get("role") == "assistant":
+            c = msg.get("content", "").lower()
+            if "refund" in c and any(p in c for p in [
+                "shall i", "go ahead", "would you like", "want me to",
+                "should i", "confirm", "proceed", "like me to", "process",
+            ]):
+                return True
+    return False
 # Phrases that CONTAIN "cancel" but are NOT order-cancellation requests
 _CANCEL_FALSE_POSITIVES = {'noise cancel', 'noise-cancel', 'active cancel'}
 
@@ -209,31 +291,71 @@ def _route_tools(
         if prior_id:
             order_match = type('M', (), {'group': lambda self, n: prior_id})()
 
-    # Cancel order
+    # For "yes/confirm" replies, pull the pending order from history even without
+    # an order keyword in the current message
+    user_confirmed = _USER_CONFIRM_RE.search(message) is not None
+    if not order_match and user_confirmed and history:
+        pending_cancel = _bot_asked_cancel_confirm(history)
+        pending_refund = _bot_asked_refund_confirm(history)
+        if pending_cancel or pending_refund:
+            prior_id = _extract_order_id_from_history(history)
+            if prior_id:
+                order_match = type('M', (), {'group': lambda self, n: prior_id})()
+                if pending_cancel and not has_refund:
+                    has_cancel = True
+                if pending_refund:
+                    has_refund = True
+                    has_cancel = False
+
+    # Cancel order — always confirm first, execute only after user says yes
     if order_match and has_cancel:
         order_id = order_match.group(0).upper()
-        result = tools.execute_tool("cancel_order", {"order_id": order_id, "reason": message}, ctx)
-        invocations.append(ToolInvocation(name="cancel_order", arguments={"order_id": order_id}, result=result))
-        msg_txt = result.get("message", "N/A")
-        ok = result.get("ok", False)
-        blocks.append(
-            f"Cancellation Status: {'Successful' if ok else 'Failed'}\n"
-            f"Cancellation Message: {msg_txt}"
-        )
+        if user_confirmed and _bot_asked_cancel_confirm(history):
+            # User confirmed — execute cancellation
+            result = tools.execute_tool("cancel_order", {"order_id": order_id, "reason": message}, ctx)
+            invocations.append(ToolInvocation(name="cancel_order", arguments={"order_id": order_id}, result=result))
+            msg_txt = result.get("message", "N/A")
+            ok = result.get("ok", False)
+            blocks.append(
+                f"Cancellation Status: {'Successful' if ok else 'Failed'}\n"
+                f"Cancellation Message: {msg_txt}"
+            )
+        else:
+            # First time — lookup order and ask for confirmation, do NOT cancel yet
+            result = tools.execute_tool("lookup_order", {"order_id": order_id}, ctx)
+            invocations.append(ToolInvocation(name="lookup_order", arguments={"order_id": order_id}, result=result))
+            blocks.append(_fmt_order(result))
+            blocks.append(
+                "[SYSTEM NOTE: The customer wants to cancel this order. "
+                "Check the order status above. If it can be cancelled (status is Processing or Pending), "
+                "tell the customer and ask: 'Shall I go ahead and cancel this order?' "
+                "If it cannot be cancelled (already Shipped/Delivered/Cancelled), explain why. "
+                "Do NOT cancel yet — wait for confirmation.]"
+            )
 
-    # Refund with known order ID
+    # Refund — always confirm first, execute only after user says yes
     elif order_match and has_refund:
         order_id = order_match.group(0).upper()
         result = tools.execute_tool("lookup_order", {"order_id": order_id}, ctx)
         invocations.append(ToolInvocation(name="lookup_order", arguments={"order_id": order_id}, result=result))
         blocks.append(_fmt_order(result))
-        refund_result = tools.execute_tool("process_refund", {"order_id": order_id, "reason": message}, ctx)
-        invocations.append(ToolInvocation(name="process_refund", arguments={"order_id": order_id, "reason": message}, result=refund_result))
-        blocks.append(
-            f"Refund ID: {refund_result.get('refund_id', 'N/A')}\n"
-            f"Refund Amount: {refund_result.get('amount', 'N/A')}\n"
-            f"Refund Status: {refund_result.get('status', 'N/A')}"
-        )
+        if user_confirmed and _bot_asked_refund_confirm(history):
+            # User confirmed — execute refund
+            refund_result = tools.execute_tool("process_refund", {"order_id": order_id, "reason": message}, ctx)
+            invocations.append(ToolInvocation(name="process_refund", arguments={"order_id": order_id, "reason": message}, result=refund_result))
+            blocks.append(
+                f"Refund ID: {refund_result.get('refund_id', 'N/A')}\n"
+                f"Refund Amount: {refund_result.get('amount', 'N/A')}\n"
+                f"Refund Status: {refund_result.get('status', 'N/A')}"
+            )
+        else:
+            # First time — lookup order and ask for confirmation, do NOT refund yet
+            blocks.append(
+                "[SYSTEM NOTE: The customer wants a refund. "
+                "Check the order status above. Tell the customer the refund amount and ask: "
+                "'Shall I go ahead and process the refund?' "
+                "Do NOT process the refund yet — wait for confirmation.]"
+            )
 
     # Order lookup
     elif order_match:
@@ -266,8 +388,20 @@ def _route_tools(
         for r in result.get("results", []):
             blocks.append(f"- {r.get('title','?')} | {r.get('category','?')} | ${r.get('price',0)} | {r.get('stars',0)} stars")
 
-    # Account info
-    if any(k in msg_lower for k in _ACCOUNT_KEYWORDS):
+    # List all orders — only for verified users
+    if any(k in msg_lower for k in _LIST_ORDERS_KEYWORDS) and ctx.customer_id:
+        result = tools.execute_tool("search_customer_orders", {"keywords": "", "limit": 20}, ctx)
+        invocations.append(ToolInvocation(name="search_customer_orders", arguments={}, result=result))
+        orders = result.get("orders", [])
+        if orders:
+            order_lines = "\n".join(
+                f"- {o['order_id']}: {o['status']} | {', '.join(o['items_preview'])} | {o['total']} | ETA {o['eta']}"
+                for o in orders
+            )
+            blocks.append(f"Customer Orders ({len(orders)} total):\n{order_lines}")
+
+    # Account info — only for verified users
+    if any(k in msg_lower for k in _ACCOUNT_KEYWORDS) and ctx.customer_id:
         result = tools.execute_tool("get_account_info", {}, ctx)
         invocations.append(ToolInvocation(name="get_account_info", arguments={}, result=result))
         blocks.append(
@@ -344,6 +478,51 @@ def _route_tools(
                 f"Refund Amount: {refund_result.get('amount', 'N/A')}\n"
                 f"Refund Status: {refund_result.get('status', 'N/A')}"
             )
+
+    # ── Email confirmation request ────────────────────────────────────────────
+    # If the customer explicitly asks for a confirmation email and no email tool
+    # has already fired this turn, build a summary from recent history and send it.
+    if (_EMAIL_REQUEST_RE.search(message)
+            and ctx.customer_id
+            and not any(inv.name == "send_customer_email" for inv in invocations)):
+        # Build subject + body from the last meaningful bot action in history
+        subject = "Your Atlas Support Confirmation"
+        body_lines = ["Hi,", "", "Here is a summary of your recent support interaction:"]
+        for msg in reversed(history[-8:]):
+            if msg.get("role") == "assistant":
+                content = msg.get("content", "").strip()
+                if content and len(content) > 20:
+                    body_lines.append("")
+                    body_lines.append(content)
+                    break
+        body_lines += ["", "Thank you for contacting Atlas Support.", "— The Atlas Team"]
+        # Refine subject based on recent tool actions
+        all_tools = [inv.name for inv in invocations] + [
+            m.get("role") for m in history[-6:] if m.get("role") == "assistant"
+        ]
+        for h_msg in reversed(history[-6:]):
+            for tc in (h_msg.get("tools_called") or []):
+                if isinstance(tc, dict):
+                    if tc.get("name") == "cancel_order":
+                        subject = "Your Order Cancellation Confirmation"
+                        break
+                    if tc.get("name") == "process_refund":
+                        subject = "Your Refund Confirmation"
+                        break
+        email_result = tools.execute_tool(
+            "send_customer_email",
+            {"subject": subject, "body": "\n".join(body_lines)},
+            ctx,
+        )
+        invocations.append(ToolInvocation(
+            name="send_customer_email",
+            arguments={"subject": subject},
+            result=email_result,
+        ))
+        blocks.append(
+            f"Email Status: {'Sent' if email_result.get('ok') else 'Failed'}\n"
+            f"Sent To: {email_result.get('to', 'N/A')}"
+        )
 
     context_block = "\n".join(blocks)
     return invocations, context_block
@@ -630,6 +809,95 @@ def _call_hf(messages: List[dict], max_new_tokens: int = 256) -> str:
         raise
 
 
+def _call_groq(messages: List[dict], max_new_tokens: int = 256) -> str:
+    settings = get_settings()
+    try:
+        resp = httpx.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.groq_api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": settings.groq_model,
+                "messages": messages,
+                "max_tokens": max_new_tokens,
+                "temperature": 0.1,
+            },
+            timeout=settings.llm_timeout_seconds,
+        )
+        if not resp.is_success:
+            log.error("Groq 4xx body: %s", resp.text[:500])
+        resp.raise_for_status()
+        return resp.json()["choices"][0]["message"]["content"]
+    except Exception as exc:
+        log.error("Groq endpoint error: %s", exc)
+        raise
+
+
+def _call_llm(messages: List[dict], max_new_tokens: int = 256) -> str:
+    """Route to Groq or HuggingFace based on LLM_PROVIDER env var."""
+    provider = get_settings().llm_provider.lower()
+    if provider == "groq":
+        return _call_groq(messages, max_new_tokens)
+    return _call_hf(messages, max_new_tokens)
+
+
+_EMPATHY_OPENERS_FRUSTRATED = [
+    "I'm really sorry you're going through this — that's completely understandable, and I want to make it right.",
+    "I sincerely apologise for the trouble you're experiencing — let me help sort this out right away.",
+    "I'm so sorry to hear that — you deserve so much better, and I'll do everything I can to fix this.",
+    "That's truly frustrating, and I completely understand — I'm here and I'm going to get this resolved for you.",
+    "I hear you, and I'm really sorry this has happened — that's not the experience we want for you at all.",
+    "I completely understand why you're upset, and I sincerely apologise — let me take care of this for you right now.",
+    "I'm so sorry about this — your frustration is completely valid, and I want to make this right immediately.",
+    "This should never have happened, and I'm truly sorry — you have my full attention and I'll sort this out for you.",
+]
+
+_EMPATHY_OPENERS_NEGATIVE = [
+    "I'm sorry to hear you're having this experience — let me help sort this out.",
+    "I apologise for the trouble — that's definitely not what we want for you.",
+    "I'm sorry about that — let me look into this and get it fixed for you.",
+    "That's not okay, and I'm sorry — let me make this right.",
+    "I understand how frustrating this must be — I'm sorry, and I'm here to help.",
+    "I'm really sorry to hear that — you shouldn't have to deal with this.",
+    "Thank you for letting us know — I'm sorry this happened, and I'll do my best to help.",
+    "I apologise for the inconvenience — let me see what I can do for you right away.",
+]
+
+_NEGATIVE_WORDS_RE = re.compile(
+    r'\b(angry|upset|furious|frustrated|annoyed|disappointed|terrible|awful|horrible|'
+    r'worst|bad|poor|broken|damaged|missing|wrong|problem|issue|unhappy|not happy|'
+    r'not satisfied|this is ridiculous|unacceptable|pissed|livid|mad|fed up|'
+    r'wtf|what the hell|what the heck|so annoyed|so frustrated|very frustrated|'
+    r'not okay|not good enough|really bad|so bad|hate this|sad|really sad|'
+    r'feel sad|heartbroken|devastated|let down|feel let down|dissatisfied|'
+    r'displeased|regret|not impressed|neglected|ignored|cheated|'
+    r'slow|too slow|taking forever|no response|no reply|rude|disrespectful)\b',
+    re.IGNORECASE,
+)
+
+_empathy_rng_counter = 0
+
+def _empathy_prefix(sentiment: str, cumulative: str, message: str) -> str:
+    global _empathy_rng_counter
+    is_negative = (
+        sentiment in {"negative", "frustrated"}
+        or cumulative in {"negative", "frustrated"}
+        or bool(_NEGATIVE_WORDS_RE.search(message))
+    )
+    if not is_negative:
+        return ""
+    is_frustrated = sentiment == "frustrated" or cumulative == "frustrated"
+    if is_frustrated:
+        openers = _EMPATHY_OPENERS_FRUSTRATED
+    else:
+        openers = _EMPATHY_OPENERS_NEGATIVE
+    opener = openers[_empathy_rng_counter % len(openers)]
+    _empathy_rng_counter += 1
+    return opener
+
+
 def _augment_system(base: str, sentiment: str, cumulative: str) -> str:
     extras = []
     if cumulative == "frustrated":
@@ -638,7 +906,10 @@ def _augment_system(base: str, sentiment: str, cumulative: str) -> str:
             "Lead with sincere acknowledgement and resolve as fast as possible."
         )
     elif cumulative == "negative" or sentiment in {"negative", "frustrated"}:
-        extras.append("Note: The customer is unhappy. Be extra empathetic and solution-focused.")
+        extras.append(
+            "The customer is upset. After the empathy opener already prepended, keep your tone warm, "
+            "solution-focused, and concise. Do NOT repeat apologies — just fix the problem."
+        )
     if not extras:
         return base
     return base + "\n\n" + "\n".join(extras)
@@ -668,7 +939,40 @@ def run_agent(
             return (
                 "Hi there! Welcome to Atlas support. How can I help you today?"
             ), invocations
+        # Unverified user asking about account or orders
+        _needs_auth = (
+            any(k in user_message.lower() for k in _ACCOUNT_KEYWORDS | _LIST_ORDERS_KEYWORDS)
+            or _ORDER_INTENT_RE.search(user_message)
+        )
+        if _needs_auth and not (ctx and ctx.customer_id):
+            return (
+                "I'd be happy to help with your account. "
+                "Could you share the email address on your account so I can verify your identity?"
+            ), invocations
         if _ORDER_INTENT_RE.search(user_message):
+            if ctx and ctx.customer_id:
+                # Verified user asking about orders without an ID → list their orders
+                result = tools.execute_tool("search_customer_orders", {"keywords": "", "limit": 20}, ctx)
+                invocations.append(ToolInvocation(name="search_customer_orders", arguments={}, result=result))
+                orders = result.get("orders", [])
+                if orders:
+                    lines = "\n".join(
+                        f"- {o['order_id']}: {o['status']} | {', '.join(o['items_preview'])} | {o['total']} | ETA {o['eta']}"
+                        for o in orders
+                    )
+                    tool_context = f"Customer Orders ({len(orders)} total):\n{lines}"
+                    # Fall through to LLM with order list context
+                    system = _augment_system(SYSTEM_PROMPT, sentiment, cumulative)
+                    messages = [{"role": "system", "content": system}]
+                    for h in history[-8:]:
+                        role = h.get("role")
+                        content = h.get("content") or ""
+                        if role in {"user", "assistant"} and content:
+                            messages.append({"role": role, "content": content})
+                    messages.append({"role": "user", "content": f"{user_message}\n\n{tool_context}"})
+                    reply = _call_llm(messages, max_new_tokens=180)
+                    reply = _clean_reply(reply)
+                    return reply, invocations
             return (
                 "Sure! Could you share your order number? "
                 "It starts with ORD- and you'll find it in your confirmation email."
@@ -684,10 +988,8 @@ def run_agent(
                 "I want to make sure you get the right help. Let me connect you with a member of our "
                 "support team who can look into this personally. Please hold on."
             ), invocations
-        return (
-            "I don't have specific information about that in our system. "
-            "For detailed help, please contact our support team directly or visit our help center."
-        ), invocations
+        # No invocations and no specific match — let the LLM handle it with the system prompt
+        pass
 
     # Step 2: build prompt — inject tool results so model only needs to write the response
     system = _augment_system(SYSTEM_PROMPT, sentiment, cumulative)
@@ -709,7 +1011,20 @@ def run_agent(
             messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": augmented_user})
 
-    reply = _call_hf(messages, max_new_tokens=180)
+    # Deterministic order list — never let the LLM summarize this into counts
+    order_list_inv = next((inv for inv in invocations if inv.name == "search_customer_orders"), None)
+    if order_list_inv:
+        orders = (order_list_inv.result or {}).get("orders", [])
+        if orders:
+            lines = []
+            for o in orders:
+                items = ", ".join(o.get("items_preview", [])) or "—"
+                eta = o.get("eta") or "TBD"
+                lines.append(f"• **{o['order_id']}** — {o['status']} | {items} | {o['total']} | ETA {eta}")
+            return "Here are your orders:\n\n" + "\n".join(lines), invocations
+        return "I couldn't find any orders on your account.", invocations
+
+    reply = _call_llm(messages, max_new_tokens=180)
     reply = _fill_placeholders(reply, invocations)
     reply = _clean_reply(reply)
 
@@ -791,5 +1106,12 @@ def run_agent(
             " Since your order has already shipped, cancellation isn't possible at this stage. "
             "However, you can return it once it's delivered — just initiate a return within our standard return window."
         )
+
+    prefix = _empathy_prefix(sentiment, cumulative, user_message)
+    if prefix and reply:
+        # Only prepend if the reply doesn't already open with an apology
+        low = reply.lstrip().lower()
+        if not any(low.startswith(w) for w in ("i'm sorry", "i am sorry", "apolog", "so sorry", "sincerely")):
+            reply = prefix + " " + reply.lstrip()
 
     return reply or "I'm here to help — could you clarify what you need?", invocations

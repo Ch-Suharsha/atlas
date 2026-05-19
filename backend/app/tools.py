@@ -544,13 +544,28 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
             "email": email,
         }
 
+    AUTO_APPROVE_THRESHOLD_CENTS = 3000  # $30.00
+
+    if order.total_cents > AUTO_APPROVE_THRESHOLD_CENTS:
+        amount_str = _format_money(order.total_cents, order.currency)
+        return {
+            "ok": False,
+            "escalate": True,
+            "amount": amount_str,
+            "message": (
+                f"This order totals {amount_str}, which is above our $30.00 automatic refund limit. "
+                "I can't approve this one automatically — a member of our support team will review "
+                "it and reach out within 1 business day. Would you like me to flag it for human review?"
+            ),
+        }
+
     refund = Refund(
         order_id=order.id,
         request_key=key,
         reason=reason,
         amount_cents=order.total_cents,
         currency=order.currency,
-        status="pending_manual",
+        status="approved",
     )
     ctx.db.add(refund)
     ctx.db.flush()
@@ -558,14 +573,14 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
     amount_str = _format_money(refund.amount_cents, refund.currency)
     email = _auto_email(
         ctx,
-        subject=f"Refund opened · {amount_str} for order {order.id}",
+        subject=f"Refund approved · {amount_str} for order {order.id}",
         body=(
-            f"Hi,\n\nWe have opened refund #{refund.id} on order {order.id}.\n"
-            f"Reason on file: {reason}\nAmount: {amount_str}\nStatus: {refund.status}.\n\n"
-            "Funds typically return in 5 business days after approval. We'll email you again "
-            "the moment the status changes.\n\n— Atlas Support"
+            f"Hi,\n\nYour refund of {amount_str} for order {order.id} has been approved.\n"
+            f"Reason on file: {reason}\nRefund ID: {refund.id}\n\n"
+            "Funds typically return in 5 business days. We'll email you again "
+            "if anything changes.\n\n— Atlas Support"
         ),
-        label="refund_opened",
+        label="refund_approved",
         order_id=order.id,
     )
 
@@ -574,7 +589,7 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
         "refund_id": refund.id,
         "status": refund.status,
         "amount": amount_str,
-        "message": "Refund recorded. Confirmation email sent. Funds typically return in 5 business days once approved.",
+        "message": f"Refund of {amount_str} approved automatically. Confirmation email sent. Funds return in 5 business days.",
         "email": email,
     }
 

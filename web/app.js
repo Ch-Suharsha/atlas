@@ -125,15 +125,34 @@ function renderSessionList() {
     const title = document.createElement("span");
     title.textContent = s.title || "Untitled";
     li.appendChild(title);
-    const del = document.createElement("button");
-    del.className = "session-delete";
-    del.title = "Delete conversation";
-    del.textContent = "×";
-    del.addEventListener("click", (e) => {
+    const menuWrap = document.createElement("div");
+    menuWrap.className = "session-menu";
+    const menuBtn = document.createElement("button");
+    menuBtn.className = "session-menu__btn";
+    menuBtn.title = "More options";
+    menuBtn.setAttribute("aria-label", "More options");
+    menuBtn.textContent = "⋮";
+    const menuDrop = document.createElement("div");
+    menuDrop.className = "session-menu__drop";
+    menuDrop.hidden = true;
+    const delItem = document.createElement("button");
+    delItem.className = "session-menu__item session-menu__item--danger";
+    delItem.textContent = "Delete conversation";
+    delItem.addEventListener("click", (e) => {
       e.stopPropagation();
+      menuDrop.hidden = true;
       deleteSession(s.id);
     });
-    li.appendChild(del);
+    menuDrop.appendChild(delItem);
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const wasHidden = menuDrop.hidden;
+      document.querySelectorAll(".session-menu__drop").forEach((d) => { d.hidden = true; });
+      menuDrop.hidden = !wasHidden;
+    });
+    menuWrap.appendChild(menuBtn);
+    menuWrap.appendChild(menuDrop);
+    li.appendChild(menuWrap);
     li.addEventListener("click", () => {
       state.sessionId = s.id;
       saveState();
@@ -166,10 +185,18 @@ function formatTimestamp(ts) {
   }
 }
 
+const _SENTIMENT_META = {
+  frustrated: { emoji: "😤", label: "Frustrated", cls: "sent--frustrated" },
+  negative:   { emoji: "😟", label: "Negative",   cls: "sent--negative"   },
+  positive:   { emoji: "😊", label: "Positive",   cls: "sent--positive"   },
+  neutral:    { emoji: "😐", label: "Neutral",     cls: "sent--neutral"    },
+};
+
 function buildUserMessage(m) {
   const text = typeof m === "string" ? m : m.content;
-  const ts = typeof m === "object" ? m.timestamp : null;
-  const tpl = document.getElementById("tpl-message-user");
+  const ts   = typeof m === "object" ? m.timestamp : null;
+  const sent = typeof m === "object" ? m.sentiment : null;
+  const tpl  = document.getElementById("tpl-message-user");
   const node = tpl.content.firstElementChild.cloneNode(true);
   node.querySelector(".msg-user__bubble").textContent = text;
   if (ts) {
@@ -452,10 +479,6 @@ function buildCustomerEvidenceSection(m) {
     ul.className = "customer-tool-list";
     ul.setAttribute("aria-label", "Support actions");
     for (const t of tools) {
-      // Policy knowledge lookups are intentionally hidden from the customer
-      // view — the RAG still runs on the backend but we do not expose policy
-      // source attribution (topic, section, source URL, hit count) to end users.
-      if (t.name === "search_policy_knowledge") continue;
       const ok = t.result && t.result.ok !== false;
       const li = document.createElement("li");
       li.className = "customer-tool-item" + (ok ? "" : " customer-tool-item--warn");
@@ -490,9 +513,21 @@ function buildCustomerEvidenceSection(m) {
     wrap.appendChild(box);
   }
 
-  // Policy source cards are intentionally suppressed on the customer view.
-  // The RAG retrieval still runs on the backend — we just don't expose
-  // the raw policy text or source attribution to the end user.
+  if (policies.length) {
+    const box = document.createElement("section");
+    box.className = "customer-ev-block";
+    box.innerHTML = `<h4 class="customer-ev-block__title">Policy references</h4>
+      <p class="customer-ev-block__lede">Verified policy info used in this reply.</p>
+      <div class="customer-pcard-grid" role="list"></div>`;
+    const grid = box.querySelector(".customer-pcard-grid");
+    policies.forEach((row) => {
+      const holder = document.createElement("div");
+      holder.setAttribute("role", "listitem");
+      holder.innerHTML = buildCustomerPolicyCard(row);
+      grid.appendChild(holder);
+    });
+    wrap.appendChild(box);
+  }
 
   if (recs.length) {
     const box = document.createElement("section");
@@ -799,7 +834,7 @@ async function sendMessage(text) {
   if (state.inflight || !text.trim()) return;
   state.inflight = true;
   const session = ensureSession();
-  session.messages.push({ role: "user", content: text, timestamp: Date.now() });
+  session.messages.push({ role: "user", content: text, timestamp: Date.now(), sentiment: null });
   if (session.messages.length === 1) {
     const isEmail = _EMAIL_LIKE_RE.test(text.trim());
     session.title = isEmail
@@ -821,6 +856,9 @@ async function sendMessage(text) {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     hideTyping();
+    // Back-fill sentiment onto the user message we already stored
+    const lastUser = [...session.messages].reverse().find((m) => m.role === "user");
+    if (lastUser) lastUser.sentiment = data.sentiment || "neutral";
     session.messages.push({
       role: "assistant",
       content: data.reply,
@@ -1102,7 +1140,7 @@ function initLanding() {
     overlay.classList.add("intro-leaving");
     document.documentElement.classList.add("intro-complete");
     try {
-      localStorage.setItem("atlas_landing_v1", "1");
+      localStorage.removeItem("atlas_landing_v1");
     } catch (_) {}
 
     const done = () => {
@@ -1144,6 +1182,10 @@ function initLanding() {
     finish();
   });
 }
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".session-menu__drop").forEach((d) => { d.hidden = true; });
+});
 
 loadState();
 ensureSession();
