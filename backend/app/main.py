@@ -24,9 +24,15 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        log.info("Database tables created/verified")
+    except Exception as exc:
+        log.error("Database initialization failed: %s", exc)
     try:
         ensure_collection()
     except Exception as exc:
