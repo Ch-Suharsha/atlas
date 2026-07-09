@@ -24,23 +24,9 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-import asyncio
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        Base.metadata.create_all(bind=engine)
-        log.info("Database tables created/verified")
-    except Exception as exc:
-        log.error("Database initialization failed: %s", exc)
-    try:
-        ensure_collection()
-    except Exception as exc:
-        log.warning("Qdrant catalog collection not ready at startup: %s", exc)
-    try:
-        ensure_policy_collection()
-    except Exception as exc:
-        log.warning("Qdrant policy collection not ready at startup: %s", exc)
+    log.info("Lifespan startup: skipping DB init (Railway Postgres connection issue)")
     yield
 
 
