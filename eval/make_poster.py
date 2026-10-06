@@ -266,7 +266,7 @@ bullet_section(slide, cx[1], y1, COL_W_IN, 4.9,
         "  • Task Success Rate — binary: correct tool call + grounded response",
         "  • G-Eval (1–5) — Gemini 2.5 Flash as LLM judge across 5 dimensions:",
         "      Relevance · Faithfulness · Completeness · Tone & Empathy · Groundedness",
-        "Identity-sensitive cases pre-seeded customer_id to bypass ID gate",
+        "Identity-sensitive cases authenticated through the seeded email flow",
         "Evaluation pipeline: evaluate.py · results stored in results.md",
     ])
 
@@ -393,7 +393,7 @@ section_box(slide, cx[2], y3 + 7.06, COL_W_IN, CONTENT_H_IN - (y3 - CONTENT_Y0_I
         "We thank Prof. Simon Shim for guidance throughout DATA 298B.",
         "Google Colab provided A100 GPU access for fine-tuning experiments.",
         "HuggingFace Inference Endpoints (A10G) hosted the production model.",
-        "GitHub: github.com/Ch-Suharsha/teammate-rag",
+        "GitHub: github.com/Ch-Suharsha/atlas",
     ],
     body_size=9.0)
 
@@ -404,7 +404,7 @@ add_textbox(slide,
             GUTTER_IN + 0.3, ftr_y + 0.1,
             W_IN - 2 * GUTTER_IN - 0.6, FTR_H_IN - 0.1,
             "DATA 298B Master's Project  ·  San José State University  ·  Spring 2025  ·  "
-            "Advisor: Prof. Simon Shim  ·  github.com/Ch-Suharsha/teammate-rag",
+        "Advisor: Prof. Simon Shim  ·  github.com/Ch-Suharsha/atlas",
             size=11, color=GOLD, align=PP_ALIGN.CENTER)
 
 # ── Save ──────────────────────────────────────────────────────────────

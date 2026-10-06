@@ -1,9 +1,12 @@
 ```bash
+cp .env.example .env
+# Add HF_ENDPOINT_URL/HF_TOKEN or select the Groq provider and add GROQ_API_KEY.
 
-cp .env.example .env   # run this command and then you need to add the OPENAI_API_KEY the actual one
 
+docker compose --profile dev-mail up --build -d
 
-docker compose --profile dev-mail up --build -d # this will start all the necessary stuff
+# The API applies Alembic migrations during startup. To run explicitly:
+docker compose run --rm api alembic upgrade head
 
 docker compose run --rm --build api python -m app.seed # this will load user data to the DB
 
@@ -14,10 +17,7 @@ docker compose run --rm --build api python -m app.ingest_policies # run this in 
 # UI   http://localhost:8000 this is your actual UI
 # Mail http://localhost:8025 this is where you will see the mail, think of it like your local gmail
 
-#the customer id in the ui is 1
-#email is  is demo@atlas.local
-
-#if you dont enter the above values the code will not run.
+# Use the demo email `demo@atlas.local` when the identity flow asks for it.
 
 # command to stop it
 docker compose --profile dev-mail down

@@ -110,6 +110,9 @@ cp .env.example .env
 # Start all services (including MailHog for local email preview)
 docker compose --profile dev-mail up --build -d
 
+# Create/update the database schema (the API also runs this on container startup)
+docker compose run --rm api alembic upgrade head
+
 # Seed demo data (run once)
 docker compose run --rm api python -m app.seed
 
@@ -158,6 +161,11 @@ docker compose run --rm api python -m app.ingest_policies
 
 Full list in `.env.example`.
 
+The public `/chat` endpoint does not accept a customer ID as authentication.
+Customers must complete the email/order identity flow. The inbound email
+webhook is disabled unless `INBOUND_WEBHOOK_SECRET` is configured and the
+caller sends the matching `X-Atlas-Webhook-Secret` header.
+
 ---
 
 ## Health
@@ -190,6 +198,8 @@ atlas/
 │   └── styles.css
 ├── eval/
 │   └── evaluate.py           # G-Eval + ROUGE-L evaluation
+├── migrations/                # Alembic database migrations
+├── tests/                     # Critical business-flow regression tests
 ├── docker-compose.yml
 ├── Dockerfile
 └── README.md

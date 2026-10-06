@@ -8,6 +8,7 @@ import requests, uuid, time, textwrap
 
 BASE = "http://localhost:8000"
 SEP  = "─" * 80
+CUSTOMER_EMAILS = {"1": "demo@atlas.local"}
 
 def sid():
     return f"probe-{uuid.uuid4().hex[:10]}"
@@ -16,9 +17,18 @@ issues_log = []   # (scenario_name, turn, issue_description)
 
 def chat(session_id, message, customer_id=None):
     payload = {"session_id": session_id, "message": message}
-    if customer_id:
-        payload["customer_id"] = customer_id
     t0 = time.time()
+    if customer_id in CUSTOMER_EMAILS:
+        auth = requests.post(
+            f"{BASE}/chat",
+            json={
+                "session_id": session_id,
+                "message": f"My email is {CUSTOMER_EMAILS[customer_id]}",
+            },
+            timeout=90,
+        )
+        auth.raise_for_status()
+        payload["session_token"] = auth.json().get("session_token")
     r = requests.post(f"{BASE}/chat", json=payload, timeout=90)
     lat = round(time.time() - t0, 1)
     d = r.json()

@@ -57,7 +57,8 @@ function saveState() {
 }
 
 function newSessionId() {
-  return "sess_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  const random = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+  return "sess_" + random + "_" + Date.now().toString(36);
 }
 
 /** Reuse an existing empty session if present so refresh / "+" don't pile blanks. */
@@ -851,10 +852,12 @@ async function sendMessage(text) {
       body: JSON.stringify({
         message: text,
         session_id: session.id,
+        session_token: session.sessionToken || undefined,
       }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
+      const data = await resp.json();
+    session.sessionToken = data.session_token || session.sessionToken;
     hideTyping();
     // Back-fill sentiment onto the user message we already stored
     const lastUser = [...session.messages].reverse().find((m) => m.role === "user");

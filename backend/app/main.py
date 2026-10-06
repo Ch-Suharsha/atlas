@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 import re
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,8 +16,7 @@ from sqlalchemy.orm import Session
 
 from . import agent, identification, rag as rag_mod, sentiment, tools
 from .db import engine, get_db
-from .models import Base, Message, Session as ChatSession
-from .rag import ensure_collection, ensure_policy_collection
+from .models import Message, Session as ChatSession
 from .schemas import ChatRequest, ChatResponse, HealthResponse, RagSource
 from .settings import get_settings
 
@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("Lifespan startup: skipping DB init (Railway Postgres connection issue)")
+    log.info("Atlas API starting; database schema is managed by Alembic")
     yield
 
 
@@ -36,7 +36,10 @@ app = FastAPI(title="Customer Support Agent", version="1.0.0", lifespan=lifespan
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
+    # Browsers reject credentialed requests with a wildcard origin. More
+    # importantly, Atlas has no cookie-based auth yet, so credentials should
+    # only be enabled when an explicit origin list is configured.
+    allow_credentials="*" not in settings.cors_origin_list,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -86,13 +89,41 @@ def _user_sentiment_history(db: Session, session_id: str) -> list[str]:
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
+    return _process_chat(req, db)
+
+
+def _process_chat(
+    req: ChatRequest,
+    db: Session,
+    *,
+    verified_customer_email: str | None = None,
+    trusted_internal: bool = False,
+) -> ChatResponse:
+    """Run one chat turn.
+
+    Identity is established only by the identification flow. Values supplied
+    in the public JSON request are intentionally not copied onto the session.
+    ``verified_customer_email`` is reserved for an authenticated inbound-email
+    adapter and is still checked against the database before use.
+    """
     chat_session = db.get(ChatSession, req.session_id)
     if chat_session is None:
-        chat_session = ChatSession(id=req.session_id, customer_id=req.customer_id)
+        chat_session = ChatSession(
+            id=req.session_id,
+            access_token=secrets.token_urlsafe(32),
+        )
         db.add(chat_session)
         db.flush()
-    elif req.customer_id and chat_session.customer_id != req.customer_id:
-        chat_session.customer_id = req.customer_id
+    elif chat_session.access_token and not trusted_internal:
+        if not req.session_token or not secrets.compare_digest(
+            req.session_token, chat_session.access_token
+        ):
+            raise HTTPException(status_code=403, detail="Invalid chat session token")
+    else:
+        # Existing sessions created before token binding get a token on their
+        # next request; the token is returned in this response.
+        chat_session.access_token = secrets.token_urlsafe(32)
+        db.flush()
 
     user_sent = sentiment.detect_sentiment(req.message)
     user_intent = sentiment.detect_intent(req.message)
@@ -117,6 +148,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
         chat_session=chat_session,
         history=history,
         db=db,
+        candidate_email=verified_customer_email,
     )
     if id_response is not None:
         customer_just_verified = bool(chat_session.customer_id and not _customer_id_before)
@@ -184,6 +216,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
             tools_called=invocations,
             rag_sources=id_rag_sources,
             session_id=req.session_id,
+            session_token=chat_session.access_token,
         )
 
     ctx = tools.ToolContext(
@@ -252,6 +285,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)) -> ChatResponse:
         tools_called=invocations,
         rag_sources=rag_sources,
         session_id=req.session_id,
+        session_token=chat_session.access_token,
     )
 
 
@@ -271,7 +305,7 @@ def rag_search(q: str, top_k: int = 6) -> dict:
         hits = rag_mod.search_products(query=q, top_k=top_k)
     except Exception as exc:
         log.warning("rag/search failed: %s", exc)
-        raise HTTPException(status_code=503, detail=str(exc))
+        raise HTTPException(status_code=503, detail="Catalog search is temporarily unavailable")
     return {
         "query": q,
         "count": len(hits),
@@ -301,7 +335,7 @@ def policy_search(q: str, top_k: int = 4) -> dict:
         hits = rag_mod.search_policies(query=q, top_k=top_k)
     except Exception as exc:
         log.warning("policy/search failed: %s", exc)
-        raise HTTPException(status_code=503, detail=str(exc))
+        raise HTTPException(status_code=503, detail="Policy search is temporarily unavailable")
     return {
         "query": q,
         "count": len(hits),
@@ -320,8 +354,18 @@ def policy_search(q: str, top_k: int = 4) -> dict:
 
 # ── Email inbound webhook (optional) ───────────────────────────────
 @app.post("/webhooks/email/inbound")
-def inbound_email(payload: dict, db: Session = Depends(get_db)):
+def inbound_email(
+    payload: dict,
+    db: Session = Depends(get_db),
+    x_atlas_webhook_secret: str | None = Header(default=None),
+):
     """Accept a parsed inbound email and route it through the same chat pipeline."""
+    if not settings.inbound_webhook_secret:
+        raise HTTPException(status_code=503, detail="Inbound email is not configured")
+    if not x_atlas_webhook_secret or not secrets.compare_digest(
+        x_atlas_webhook_secret, settings.inbound_webhook_secret
+    ):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
     sender = payload.get("from") or payload.get("sender") or ""
     text_body = payload.get("text") or payload.get("body") or ""
     subject = payload.get("subject") or ""
@@ -329,9 +373,11 @@ def inbound_email(payload: dict, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="from + text required")
     session_id = f"email:{sender.lower()}"
     composed = f"[Subject: {subject}]\n\n{text_body}" if subject else text_body
-    return chat(
+    return _process_chat(
         ChatRequest(message=composed, session_id=session_id, customer_email=sender),
         db=db,
+        verified_customer_email=sender.lower().strip(),
+        trusted_internal=True,
     )
 
 

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from qdrant_client import QdrantClient
-from qdrant_client.http import models as qm
+if TYPE_CHECKING:
+    from qdrant_client import QdrantClient
 
 from .embedder import embed_query
 from .settings import get_settings
@@ -18,12 +18,16 @@ _client: Optional[QdrantClient] = None
 def get_qdrant() -> QdrantClient:
     global _client
     if _client is None:
+        from qdrant_client import QdrantClient
+
         settings = get_settings()
         _client = QdrantClient(url=settings.qdrant_url, timeout=30)
     return _client
 
 
 def _ensure_named_collection(name: str) -> None:
+    from qdrant_client.http import models as qm
+
     settings = get_settings()
     client = get_qdrant()
     existing = {c.name for c in client.get_collections().collections}
@@ -150,7 +154,7 @@ def _stats_for(collection: str) -> dict:
         }
     except Exception as exc:
         log.warning("Qdrant stats unavailable for %s: %s", collection, exc)
-        return {"name": collection, "points": 0, "status": "unavailable", "error": str(exc)}
+        return {"name": collection, "points": 0, "status": "unavailable", "error": "collection unavailable"}
 
 
 def collection_stats() -> dict:

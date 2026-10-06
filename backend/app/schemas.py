@@ -6,10 +6,13 @@ from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., min_length=1)
-    session_id: str = Field(..., min_length=1)
-    customer_id: Optional[str] = None
-    customer_email: Optional[str] = None
+    message: str = Field(..., min_length=1, max_length=8000)
+    session_id: str = Field(..., min_length=1, max_length=128)
+    session_token: Optional[str] = Field(default=None, min_length=16, max_length=128)
+    # Kept as deprecated response-compatible fields for older clients. The API
+    # deliberately does not use either value as proof of identity.
+    customer_id: Optional[str] = Field(default=None, deprecated=True)
+    customer_email: Optional[str] = Field(default=None, deprecated=True)
 
 
 class ToolInvocation(BaseModel):
@@ -35,6 +38,7 @@ class ChatResponse(BaseModel):
     tools_called: List[ToolInvocation] = []
     rag_sources: List[RagSource] = []
     session_id: str
+    session_token: str
 
 
 class HealthResponse(BaseModel):

@@ -8,8 +8,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
-import random
-import string
+import uuid
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
@@ -133,7 +132,7 @@ def _auto_email(
         }
     except Exception as exc:
         log.exception("Auto-email[%s] failed", label)
-        return {"sent": False, "error": str(exc)}
+        return {"sent": False, "error": "email delivery failed"}
 
 
 def _meaningful_tokens(text: str, min_len: int) -> List[str]:
@@ -361,7 +360,12 @@ def _format_money(cents: int, currency: str) -> str:
 
 
 def _request_key(reason: str) -> str:
-    return hashlib.sha1(reason.strip().lower().encode()).hexdigest()[:16]
+    return hashlib.sha256(reason.strip().lower().encode()).hexdigest()[:32]
+
+
+def _status(order: Order) -> str:
+    """Normalize persisted status values before applying business rules."""
+    return (order.status or "").strip().casefold()
 
 
 def _resolve_customer(db: Session, ctx: "ToolContext") -> Optional[Customer]:
@@ -397,6 +401,12 @@ def tool_lookup_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
     order_id = str(args.get("order_id", "")).strip().upper()
     if not order_id:
         return {"ok": False, "error": "order_id required"}
+    customer = _resolve_customer(ctx.db, ctx)
+    if not customer:
+        return {
+            "ok": False,
+            "error": "No authenticated customer is associated with this session.",
+        }
     order = ctx.db.get(Order, order_id)
     if not order:
         suggestions = _did_you_mean(order_id, ctx)
@@ -407,8 +417,7 @@ def tool_lookup_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
             "did_you_mean": suggestions,
         }
 
-    customer = _resolve_customer(ctx.db, ctx)
-    if customer and order.customer_id != customer.id:
+    if order.customer_id != customer.id:
         return {
             "ok": False,
             "error": (
@@ -437,7 +446,7 @@ def tool_search_customer_orders(args: Dict[str, Any], ctx: ToolContext) -> Dict[
     if not customer:
         return {
             "ok": False,
-            "error": "No authenticated customer. Set Customer ID / Email in the console.",
+            "error": "No authenticated customer is associated with this session.",
         }
 
     keywords = str(args.get("keywords", "") or "").strip()
@@ -501,12 +510,18 @@ def tool_process_refund(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any
     if not order_id:
         return {"ok": False, "error": "order_id required"}
 
+    customer = _resolve_customer(ctx.db, ctx)
+    if not customer:
+        return {
+            "ok": False,
+            "error": "No authenticated customer is associated with this session.",
+        }
+
     order = ctx.db.get(Order, order_id)
     if not order:
         return {"ok": False, "message": f"Order {order_id} not found."}
 
-    customer = _resolve_customer(ctx.db, ctx)
-    if customer and order.customer_id != customer.id:
+    if order.customer_id != customer.id:
         return {"ok": False, "error": "Order does not belong to authenticated customer."}
 
     if order.status.lower() == "processing":
@@ -692,7 +707,7 @@ def tool_escalate_to_human(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, 
         priority = "medium"
     customer = _resolve_customer(ctx.db, ctx)
 
-    ticket_id = "TKT-" + "".join(random.choices(string.digits, k=6))
+    ticket_id = "TKT-" + uuid.uuid4().hex[:12].upper()
     ticket = SupportTicket(
         id=ticket_id,
         session_id=ctx.session_id,
@@ -761,13 +776,19 @@ def tool_cancel_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
     reason = str(args.get("reason", "") or "").strip() or "Customer request"
     if not order_id:
         return {"ok": False, "error": "order_id required"}
+    customer = _resolve_customer(ctx.db, ctx)
+    if not customer:
+        return {
+            "ok": False,
+            "error": "No authenticated customer is associated with this session.",
+        }
+
     order = ctx.db.get(Order, order_id)
     if not order:
         return {"ok": False, "order_id": order_id, "message": f"Order {order_id} not found."}
-    customer = _resolve_customer(ctx.db, ctx)
-    if customer and order.customer_id != customer.id:
+    if order.customer_id != customer.id:
         return {"ok": False, "order_id": order_id, "error": "Order does not belong to authenticated customer."}
-    if order.status == "Processing":
+    if _status(order) == "processing":
         order.status = "Cancelled"
         ctx.db.flush()
         _auto_email(
@@ -783,7 +804,7 @@ def tool_cancel_order(args: Dict[str, Any], ctx: ToolContext) -> Dict[str, Any]:
             order_id=order_id,
         )
         return {"ok": True, "order_id": order_id, "message": "Order cancelled successfully. A confirmation email has been sent."}
-    if order.status in {"Shipped", "Out for Delivery", "Delivered"}:
+    if _status(order) in {"shipped", "out for delivery", "delivered"}:
         return {"ok": False, "order_id": order_id, "message": f"Order {order_id} cannot be cancelled — it has already {order.status.lower()}. You may return it after delivery."}
     return {"ok": False, "order_id": order_id, "message": f"Order {order_id} is not in a cancellable state (status: {order.status})."}
 
@@ -809,4 +830,4 @@ def execute_tool(name: str, arguments: Dict[str, Any], ctx: ToolContext) -> Dict
         return fn(arguments, ctx)
     except Exception as exc:
         log.exception("Tool %s failed", name)
-        return {"ok": False, "error": str(exc)}
+        return {"ok": False, "error": "tool execution failed"}

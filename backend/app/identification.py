@@ -133,6 +133,7 @@ def handle_identification(
     chat_session: ChatSession,
     history: list,
     db: DbSession,
+    candidate_email: Optional[str] = None,
 ) -> Optional[str]:
     """
     Drive the customer identification flow before handing off to the agent.
@@ -148,7 +149,7 @@ def handle_identification(
     if not _needs_identification(message, history):
         return None
 
-    email = _extract_email(message)
+    email = _extract_email(message) or (candidate_email or "").strip().lower() or None
     # Order ID can come from the current message or a recent user message in history
     order_id = _extract_order_id(message) or _extract_order_from_history(history)
 

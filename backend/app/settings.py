@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = Field(default=False)
 
     escalation_webhook_url: str = Field(default="")
+    inbound_webhook_secret: str = Field(default="")
 
     app_host: str = Field(default="0.0.0.0")
     app_port: int = Field(default=8000)

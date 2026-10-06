@@ -63,8 +63,8 @@ Best category: Escalation (4.80 G-Eval). Weakest: Cancellation (2.73).
 ### Step 1 — Clone & Configure
 
 ```bash
-git clone https://github.com/Ch-Suharsha/teammate-rag.git
-cd teammate-rag
+git clone https://github.com/Ch-Suharsha/atlas.git
+cd atlas
 cp .env.example .env
 ```
 
@@ -112,14 +112,21 @@ This starts:
 Open a second terminal and run:
 
 ```bash
+# Optional explicit migration step; the API also applies migrations on startup.
+docker compose run --rm api alembic upgrade head
+```
+
+Then run:
+
+```bash
 # Seed the database with demo customers and orders
-docker exec teammate-rag-api-1 python -m app.seed
+docker compose run --rm api python -m app.seed
 
 # Ingest product catalog into Qdrant
-docker exec teammate-rag-api-1 python -m app.ingest
+docker compose run --rm api python -m app.ingest
 
 # Ingest policy knowledge base
-docker exec teammate-rag-api-1 python -m app.ingest_policies
+docker compose run --rm api python -m app.ingest_policies
 ```
 
 ### Step 5 — Open the App
@@ -163,7 +170,7 @@ python evaluate.py --gemini-key YOUR_GEMINI_API_KEY --out results.md
 - **Context window**: Multi-turn conversations beyond ~10 turns may degrade quality as the full history is passed to the model each turn.
 
 ### Identity Verification
-- **Email-only identification is weak**: Providing just an email grants full account access. There's no OTP, password, or secondary factor.
+- **Email-only identification is intentionally demo-grade**: Providing just an email grants full account access. Production use should add OTP, password, or another secondary factor.
 - **Single-session only**: Identity is verified per chat session. If the user opens a new tab, they need to re-verify.
 
 ### RAG / Retrieval

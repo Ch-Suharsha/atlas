@@ -1259,7 +1259,7 @@
 ### Test Set
 
 50 hand-crafted test cases across 7 categories:
-- Order lookup (10 cases) — authenticated via `customer_id` to bypass identity gate
+- Order lookup (10 cases) — authenticated through the seeded email verification flow
 - Refund requests (7 cases)
 - Cancellation (3 cases)
 - Policy questions (12 cases)

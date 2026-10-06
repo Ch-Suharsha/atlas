@@ -290,7 +290,7 @@ y = bullets(c, x1, y1, COL_W, 4.85, "6.  Evaluation Framework", [
     "  Task Success Rate — binary: correct tool call + grounded response",
     "  G-Eval (1–5) — Gemini 2.5 Flash judge across 5 dimensions:",
     "    Relevance · Faithfulness · Completeness · Tone & Empathy · Groundedness",
-    "Identity-sensitive cases pre-seeded with customer_id to bypass ID gate",
+    "Identity-sensitive cases authenticated through the seeded email flow",
 ])
 
 # Results table
@@ -353,7 +353,7 @@ section(c, x2, ack_y, COL_W, R3 - R3 * 0.50 - 0.12, "Acknowledgements", [
     "We thank Prof. Simon Shim for his guidance throughout DATA 298B.",
     "Google Colab provided A100 GPU access for fine-tuning experiments.",
     "HuggingFace Inference Endpoints (A10G) hosted the production model.",
-    "Source code: github.com/Ch-Suharsha/teammate-rag",
+    "Source code: github.com/Ch-Suharsha/atlas",
 ])
 
 # ── Footer ────────────────────────────────────────────────────────────
@@ -361,7 +361,7 @@ ftr_top = H/inch - FTR_H
 filled_rect(c, GUTTER, ftr_top, W/inch - 2*GUTTER, FTR_H, NAVY)
 text_block(c, GUTTER + 0.3, ftr_top + 0.1, W/inch - 2*GUTTER - 0.6, FTR_H - 0.1,
            "DATA 298B Master’s Project  ·  San José State University  ·  Spring 2025  "
-           "·  Advisor: Prof. Simon Shim  ·  github.com/Ch-Suharsha/teammate-rag",
+           "·  Advisor: Prof. Simon Shim  ·  github.com/Ch-Suharsha/atlas",
            size=11, color=GOLD, align="center")
 
 # ── Save ──────────────────────────────────────────────────────────────

@@ -62,6 +62,8 @@ SYSTEM_PROMPT = (
     "for our e-commerce platform. Keep replies concise and to the point."
 )
 
+CUSTOMER_EMAILS = {"1": "demo@atlas.local"}
+
 G_EVAL_DIMENSIONS = [
     ("relevance",    "Does the response directly address the customer's question? (1=completely off-topic, 5=perfectly on-topic)"),
     ("faithfulness", "Does the response stick to factual system data without hallucinating? (1=makes things up, 5=only states verified facts)"),
@@ -82,13 +84,22 @@ def load_test_cases(path: str) -> list[dict]:
 
 def call_atlas_rag(tc: dict, session_id: str) -> dict:
     """Call the full Atlas system (fine-tuned + RAG).
-    Passes customer_id from the test case when present so authenticated cases
-    bypass the identity gate and exercise the actual retrieval + LLM pipeline.
+    Authenticates seeded cases through the same email flow as a real customer.
     """
     payload: dict = {"session_id": session_id, "message": tc["question"]}
-    if tc.get("customer_id"):
-        payload["customer_id"] = tc["customer_id"]
     try:
+        customer_email = CUSTOMER_EMAILS.get(str(tc.get("customer_id", "")))
+        if customer_email:
+            auth = requests.post(
+                CHAT_ENDPOINT,
+                json={
+                    "session_id": session_id,
+                    "message": f"My email is {customer_email}",
+                },
+                timeout=90,
+            )
+            auth.raise_for_status()
+            payload["session_token"] = auth.json().get("session_token")
         r = requests.post(CHAT_ENDPOINT, json=payload, timeout=90)
         r.raise_for_status()
         d = r.json()
@@ -447,12 +458,12 @@ def write_report(rows, agg, dim_agg, cat_agg, out_path: str, hf_available: bool 
     a("### Test Set")
     a("")
     a("50 hand-crafted test cases across 7 categories:")
-    a("- Order lookup (10 cases) — authenticated via `customer_id` to bypass identity gate")
+    a("- Order lookup (10 cases) — authenticated through the seeded email verification flow")
     a("- Refund requests (7 cases)")
     a("- Cancellation (3 cases)")
     a("- Policy questions (12 cases)")
     a("- Product recommendations (10 cases)")
-    a("- Account information (5 cases) — authenticated via `customer_id`")
+    a("- Account information (5 cases) — authenticated through the seeded email verification flow")
     a("- Escalation (3 cases)")
     a("")
 

@@ -92,6 +92,7 @@ class Session(Base):
     __tablename__ = "chat_sessions"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    access_token: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, unique=True)
     customer_id: Mapped[Optional[str]] = mapped_column(
         String(32), ForeignKey("customers.id"), nullable=True
     )
